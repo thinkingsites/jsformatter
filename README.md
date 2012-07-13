@@ -1,13 +1,14 @@
 jsformatter - A .Net style formatter for JavaScript
 ===========
-
-jsformatter allows you to format strings by passing in a format and values.  It copies the implementation of the Microsoft .Net string formatting available here: http://msdn.microsoft.com/en-us/library/26etazsy
-
-My personal favorite reference for how to use the formatting has been SteveX's blog post: http://blog.stevex.net/string-formatting-in-csharp/
+jsformatter allows you to format strings by passing in a format and values.  It copies the implementation of the Microsoft .Net string formatting.
 
 Documentation
 =============
-This module creates four new methods
+This module creates four new methods formatting strings.  
+
+For a full documentation on formatting strings using this syntax, read this page: http://msdn.microsoft.com/en-us/library/26etazsy
+
+My personal favorite reference for how to use the formatting has been SteveX's blog post: http://blog.stevex.net/string-formatting-in-csharp/
 
 String.prototype.format([,argsN])
 ---------------------------------
@@ -40,9 +41,16 @@ Date.format(format)
 
 Allows you to format a date
 
-var date = new Date();
+	var date = new Date();
 	date.format("MM/dd/yyyy"); // "12/25/2012"
 
+Differences from .Net implementation
+------------------------------------
+
+There are several small differences between the .Net formatter and the jsformatter:
+
+* backslashes require **double** backslashes to escape characters
+	"{0:#\\##}".format(12); // "1#2"
 
 References
 ==========
