@@ -45,6 +45,17 @@
 					equal(match[3], ":$##.##");
 				});
 				
+				module("testing string.prototype.format with dates");
+				test("isNaN",function(){
+					ok(!isNaN(9));
+					ok(!isNaN("9"));
+					ok(!isNaN(new Number(9)));
+					ok(!isNaN(new Number("9")));
+					ok(!isNaN(9.99));
+					ok(!isNaN("9.99"));
+					ok(!isNaN(new Number(9.99)));
+					ok(!isNaN(new Number("9.99")));
+				});
 				
 				module("testing string.prototype.format with dates");
 				var mytestdate = new Date(2010,11,25,22,30,29,55);

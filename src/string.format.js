@@ -6,14 +6,16 @@
 		var utility = {
 			padLeft : function(value,padWith,toLength){
 				value = value.toString();
-				while(value.length < toLength)
+				while(value.length < toLength) {
 					value = padWith + value;
+				}
 				return value;
 			},
 			padRight : function(value,padWith,toLength){
 				value = value.toString();
-				while(value.length < toLength)
+				while(value.length < toLength) {
 					value = value + padWith;
+				}
 				return value;
 			},
 			extend : function() {
@@ -47,10 +49,33 @@
 					r = regex.exec(value)){
 					callback(r);							
 				}
+			},
+			getProperties : function(obj,sort){
+				var result = [], sortFunction, n;
+				for(n in obj) {
+					if(obj.hasOwnProperty(n)){
+						result.push(n);
+					}	
+				}
+				if(sort) {
+					if(typeof sort === "function"){
+						sortFunction = sort;
+					} else if(sort === "length asc") {
+						sortFunction = function(a,b){
+							return a.length - b.length;
+						};
+					} else if(sort === "length desc") {
+						sortFunction = function(a,b){
+							return b.length - a.length;
+						};
+					}
+					result = result.sort(sortFunction);
+				}
+				return result;
 			}
 		},
-		formatter = function(){};
-		formatter.prototype = {
+		Formatter = function(){};
+		Formatter.prototype = {
 			format : function(format,value){
 				var result,i,j,pushed,d,shortcut;
 				if(value instanceof Date) {
@@ -61,7 +86,7 @@
 					for(i = 0; i < format.length; i+=1){
 	
 						// do escape
-						if(format[i] == "\\"){
+						if(format[i] === "\\"){
 							result.push(format[i+1]);
 							i+=1;	
 							continue;
@@ -85,13 +110,19 @@
 						result.push(format[i]);
 					}	
 					result = result.join('');
-				} else if (typeof value == "number" || value instanceof Number){
-					if(value instanceof Number)
-						value = value.valueOf();
+				} else if (!isNaN(value)){
+					
+					// the number can come in as a Number or a string.  Cast it accordingly
+					if(value instanceof Number) {
+						value = value.valueOf();	
+					} else if(typeof value === "string") {
+						value = parseFloat(value);
+					}
+						
 					shortcut = format.match(this.numberShortRegex);
 					if(shortcut){
 						// since we have a shortcut, invoke it and pass in the length
-						result = this.numberShorts[shortcut[1].toLowerCase()].call(this,format,value,shortcut[2] != undefined ? parseInt(shortcut[2]) : undefined);
+						result = this.numberShorts[shortcut[1].toLowerCase()].call(this,format,value,shortcut[2] !== undefined ? parseInt(shortcut[2],10) : undefined);
 					} else {
 						result = this.customNumberFormat(value,format);
 					}
@@ -99,15 +130,14 @@
 				return result;
 			},
 			customNumberFormat : function(value,format){
-				var mil = "‰";
 				
 				// percentages change the raw value of the number being formatted, do them first
 				if(format.indexOf("%") > -1){
 					value = value * Math.pow(100,utility.count("%",format));
 				}
 				
-				if(format.indexOf(mil) > -1){
-					value = value * Math.pow(1000,utility.count(mil,format));
+				if(format.indexOf("‰") > -1){
+					value = value * Math.pow(1000,utility.count("‰",format));
 				}
 				
 				value = value.toString();
@@ -118,7 +148,14 @@
 					rightFormat = format.substring(formatDecimalSeperatorAt+1),
 					rightNumber = numberDecimalSeperatorAt > -1 ? value.substring(numberDecimalSeperatorAt+1) : undefined, 
 					leftNumber = numberDecimalSeperatorAt > -1 ? value.substring(0,numberDecimalSeperatorAt) : value,
-					leftFormat = formatDecimalSeperatorAt > -1 ? format.substring(0,formatDecimalSeperatorAt) : format;
+					leftFormat = formatDecimalSeperatorAt > -1 ? format.substring(0,formatDecimalSeperatorAt) : format,
+					valueIndex = 0,
+					roundingLength = utility.count("0#",rightFormat),
+					formatIndex,
+					toPush,
+					next,
+					rPaddingIndex,
+					lPaddingIndex;
 				
 				// format the right part of the number first
 				if(formatDecimalSeperatorAt > -1){
@@ -126,30 +163,28 @@
 					rResult.push(".");
 					
 					// do placeholders
-					var valueIndex = 0;
-					var roundingLength = utility.count("0#",rightFormat);
-					for(var formatIndex = 0; formatIndex < rightFormat.length; formatIndex++){
-						if(rightFormat[formatIndex] == "\\"){ 
+					for(formatIndex = 0; formatIndex < rightFormat.length; formatIndex+=1){
+						if(rightFormat[formatIndex] === "\\"){ 
 							// handle escape
 							rResult.push(rightFormat[formatIndex+1]);
-							//if("#0".indexOf(rightFormat[formatIndex+1]) > -1)
-							//	roundingLength--;
-							formatIndex++;
-						} else if(rightNumber != undefined && "0#".indexOf(rightFormat[formatIndex]) > -1){
+							formatIndex+=1;
+						} else if(rightNumber !== undefined && "0#".indexOf(rightFormat[formatIndex]) > -1){
 							// handle number placeholder
 							if(valueIndex >= roundingLength-1){
 								// handle rounding
-								var toPush = parseInt(rightNumber[valueIndex]);
+								toPush = parseInt(rightNumber[valueIndex],10);
 								if(!isNaN(toPush)) {
-									var next = parseInt(rightNumber.substring(valueIndex+1));
-									if(!isNaN(next) && next > 4)
-										toPush++;
+									next = parseInt(rightNumber.substring(valueIndex+1),10);
+									if(!isNaN(next) && next > 4) {
+										toPush+=1;
+									}
 									rResult.push(toPush);
 									valueIndex = rightNumber.length;
 								}
-							}else if(rightNumber.length > valueIndex)
+							}else if(rightNumber.length > valueIndex) {
 								rResult.push(rightNumber[valueIndex]);
-							valueIndex++;	
+							}
+							valueIndex+=1;	
 						} else {
 							// handle literal
 							rResult.push(rightFormat[formatIndex]);
@@ -157,10 +192,11 @@
 					}
 					
 					// do right padding, compensate for the initial period and the index vs length
-					var rPaddingIndex = rightFormat.lastIndexOf("0") + 2;
-					while(rResult.length < rPaddingIndex)
+					rPaddingIndex = rightFormat.lastIndexOf("0") + 2;
+					while(rResult.length < rPaddingIndex) {
 						rResult.push("0");	
-				} else if (rightNumber != undefined){
+					}
+				} else if (rightNumber !== undefined){
 					// if there is no seperator but there is a right number, let's round the whole value;
 					leftNumber = Math.round(value).toString();
 				}
@@ -168,41 +204,43 @@
 				// work backwards (right to left) up the number
 				// unlike the right side, include all the numbers
 				// but only if the left side is greater than zero
-				if(parseInt(leftNumber) > 0) {
-					var formatIndex = leftFormat.length-1;
-					for(var valueIndex = leftNumber.length-1; valueIndex > -1; valueIndex--){
+				if(parseInt(leftNumber,10) > 0) {
+					formatIndex = leftFormat.length-1;
+					for(valueIndex = leftNumber.length-1; valueIndex > -1; valueIndex-=1){
 						
 						// if the character in the format index is escaped, add it literally
-						if(leftFormat[formatIndex-1] == "\\") {
+						if(leftFormat[formatIndex-1] === "\\") {
 							lResult.unshift(leftFormat[formatIndex]);
 							formatIndex-=2;
 						}
 						
 						// if the character in the format is not a digit placeholder, add it literally
-						while(formatIndex > -1 && "0#".indexOf(leftFormat[formatIndex]) == -1){
+						while(formatIndex > -1 && "0#".indexOf(leftFormat[formatIndex]) === -1){
 							lResult.unshift(leftFormat[formatIndex]);
-							formatIndex--;
+							formatIndex-=1;
 						}
 						
 						lResult.unshift(leftNumber[valueIndex]);
-						formatIndex--;	
+						formatIndex-=1;	
 					}
 				}
 				
 				// add literals one by one to make sure they are not a digit place holder
 				if(formatIndex > -1) {
 					while(formatIndex > -1){
-						if ("#" != leftFormat[formatIndex])
-							lResult.unshift(leftFormat[formatIndex]);
-						formatIndex--;
-					};
+						if ("#" !== leftFormat[formatIndex]) {
+							lResult.unshift(leftFormat[formatIndex]); 
+						}
+						formatIndex-=1;
+					}
 				}
 				
 				// do right padding
-				var lPaddingIndex = leftFormat.indexOf("0");
-				lPaddingIndex = lPaddingIndex == -1 ? 1 : leftFormat.length - lPaddingIndex
-				while(lResult.length < lPaddingIndex)
+				lPaddingIndex = leftFormat.indexOf("0");
+				lPaddingIndex = lPaddingIndex === -1 ? 1 : leftFormat.length - lPaddingIndex;
+				while(lResult.length < lPaddingIndex) {
 					lResult.unshift("0");
+				}
 				
 				return lResult.join('') + rResult.join('');
 				
@@ -216,36 +254,43 @@
 					suffix : undefined,
 					pad : undefined
 				},p);
-				var result = [(value > 0 ? "" : "-"), p.prefix];
+				var 
+					result = [(value > 0 ? "" : "-"), p.prefix],
+					location,
+					mod,
+					i;
 				
 				// turn this into an absolute value, we're adding the negative manually to the result already
 				value = Math.abs(value);
 				
 				// fixed decimal places
-				value = p.places!=undefined?parseFloat(value).toFixed(p.places):value.toString();
+				value = p.places!==undefined?parseFloat(value).toFixed(p.places):value.toString();
 				
 				// add padding
 				value = p.pad ? utility.padLeft(value,"0",p.pad) : value;
 				
 				// add seperator
 				if(p.seperateAt > 0) {
-					var location = value.lastIndexOf(".");
-					location = location == -1 ? value.length : location;
-					var mod = location % p.seperateAt;
-					for(var i = 0; i < location; i++){
-						if(i != 0 && i % p.seperateAt == mod)
+					location = value.lastIndexOf(".");
+					location = location === -1 ? value.length : location;
+					mod = location % p.seperateAt;
+					for(i = 0; i < location; i+=1){
+						if(i !== 0 && i % p.seperateAt === mod) {
 							result.push(p.seperator);
+						}
 						result.push(value[i]);
 					}
-					for(var i = location; i < value.length; i++)
+					for(i = location; i < value.length; i+=1) {
 						result.push(value[i]);
+					}
 				} else {
 					result.push(value);
 				}
 				
 				// add the suffix
-				if(p.suffix)
+				if(p.suffix) {
 					result.push(p.suffix);
+				}
 				
 				return result.join('');
 			},
@@ -273,16 +318,17 @@
 					});
 				},
 				g : function(format,value,precision){
-					var result;
-					var pIsNan = isNaN(precision);
-					
-					var exponent = value.toExponential(precision).toString();
-					var expMatch = exponent.match(/[-+]\d+$/);
-					exponent = parseInt(expMatch[0]);
-					if(exponent > -5 && (pIsNan ||exponent < precision))
+					var 
+						result,
+						pIsNan = isNaN(precision),
+						exponent = value.toExponential(precision).toString(),
+						expMatch = exponent.match(/[\-+]\d+$/);
+					exponent = parseInt(expMatch[0],10);
+					if(exponent > -5 && (pIsNan ||exponent < precision)) {
 						result = pIsNan ? value.toString() : value.toPrecision(precision);
-					else 
+					} else {
 						result = value.toExponential(pIsNan ? undefined : Math.max(precision-1,0));
+					}
 					return result.toString().toUpperCase();
 				},
 				n : function(format,value,length){
@@ -296,13 +342,15 @@
 					return value.toString();
 				},
 				x : function(format,value,length){
-					var sign = value > 0 ? "" : "-";
+					var sign = value > 0 ? "" : "-",result;
 					value = Math.abs(value.toString(16));
 					// although javascript is capable of showing a decimal hex, the Math.abs returns NaN for doubles just like the c# implementation so we'll allow it through
-					if(isNaN(value))
-						return value;
-					else
-						return sign + utility.padLeft(value,"0",length || 0);
+					if(isNaN(value)) {
+						result = value;
+					} else {
+						result = sign + utility.padLeft(value,"0",length || 0);
+					}
+					return result;
 				}
 			},
 			date : {
@@ -317,8 +365,9 @@
 				},
 				hh : function(value){ 
 					var hours = value.getHours();
-					if(hours > 12)
+					if(hours > 12) {
 						hours -=12;
+					}
 					return hours;
 				},
 				HH : function(value){
@@ -340,8 +389,7 @@
 					return value.getSeconds();
 				},
 				tt : function(value){
-					var hours = value.getHours();
-					return (hours > 11 ? "PM" : "AM");
+					return (value.getHours() > 11 ? "PM" : "AM");
 				},
 				yy : function(value){
 					return value.getFullYear().toString().substring(2);
@@ -350,18 +398,19 @@
 					return value.getFullYear();
 				},
 				zz: function(value){
-					var mins = value.getTimezoneOffset();
-					var result =
-						(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
-						utility.padLeft(Math.abs(Math.floor(mins/60)),"0",2).toString();
+					var mins = value.getTimezoneOffset(),
+						result = 
+							(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
+							utility.padLeft(Math.abs(Math.floor(mins/60)),"0",2).toString();
 					return result;
 				},
 				zzz :  function(value){
-					var mins = value.getTimezoneOffset();
-					var result = 
-						(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
-						utility.padLeft(Math.abs(Math.floor(mins/60)),"0",2).toString() + ":" + 
-						utility.padLeft(mins % 60,"0",2);
+					var 
+						mins = value.getTimezoneOffset(),
+						result = 
+							(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
+							utility.padLeft(Math.abs(Math.floor(mins/60)),"0",2).toString() + ":" + 
+							utility.padLeft(mins % 60,"0",2);
 					return result;
 				}
 			},
@@ -386,71 +435,78 @@
 			months : ["January","February","March","April","May","June","July","August","September","October","November","December"],
 			monthsShort : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 		};
-		formatter.prototype.dateNames = (function(){
-			var names = [];
-			for(var name in formatter.prototype.date)
-				names.push(name);
-			names = names.sort(function(a,b){
-				return b.length - a.length;
-			});
-			return names;
-		})();
-		formatter.prototype.numberShortRegex = (function(){
-			var names = [];
-			for(var name in formatter.prototype.numberShorts)
-				names.push(name);
-			names = names.sort(function(a,b){
-				return b.length - a.length;
-			});
-			return RegExp("^([" + names.join('') + "])(\\d+)?$","i");
-		})();
+		Formatter.prototype.dateNames = (function(){
+			return utility.getProperties(Formatter.prototype.date,"length desc");
+		}());
+		Formatter.prototype.numberShortRegex = (function(){
+			var names = utility.getProperties(Formatter.prototype.numberShorts,"length desc");
+			return new RegExp("^([" + names.join('') + "])(\\d+)?$","i");
+		}());
 		
 		String.prototype.format = function(){
-			var self = this;
-			var result = [],params = [];
-			var position = 0;
+			var 	
+				self = this,
+				result = [],
+				params = [],
+				position = 0,
+				parameterFormat,
+				param,
+				start,
+				end,
+				i,
+				p,
+				pad = function(padding,value,condition,result){
+					if(condition) {
+						var i;
+						for(i = 0; i < Math.abs(padding)-value.length; i+=1) {
+							result.push(" ");
+						}
+					}
+				};
 			
 			// compile the paramaters, and escape double brackets if there are any
 			// if there are no double brackets, use the regex to find parameters, 
 			// this should be slightly faster in native code, and less error prone (if there are any bugs)
 			// if there are double brackets, use the looping code to compensate for escaping values
-			if(self.indexOf("{{") == -1 && self.indexOf("}}") -1){	
+			if(self.indexOf("{{") === -1 && self.indexOf("}}") -1){	
 				// use the format with brackets
-				var parameterFormat = /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
-				for ( var param = parameterFormat.exec(self);
-					param != null;
+				parameterFormat = /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
+				for (param = parameterFormat.exec(self);
+					param !== null;
 					param = parameterFormat.exec(self))
 				{
 					params.push({
 						length : param[0].length,
 						index : param[1],
-						padding : param[2] != undefined ? parseInt(param[2].substring(1)) : 0,
-						format : param[3] != undefined ? param[3].substring(1) : undefined,
+						padding : param[2] !== undefined ? parseInt(param[2].substring(1),10) : 0,
+						format : param[3] !== undefined ? param[3].substring(1) : undefined,
 						value : arguments[param[1]],
 						paramAt : param.index
 					});
 				}
 			} else {
 				// use the format without brackets
-				var parameterFormat = /^(\d+)(,-?\d+)?(:.*?)?$/gi;
-				var i = 0;
+				parameterFormat = /^(\d+)(,-?\d+)?(:.*?)?$/gi;
+				i = 0;
 				while(i > -1){
-					var start = self.indexOf("{",i);
-					while (start != -1 && self.substring(start,start+2) == "{{")
+					start = self.indexOf("{",i);
+					while (start !== -1 && self.substring(start,start+2) === "{{") {
 						start = self.indexOf("{",start+2);
+					}
 						
-					var end = self.indexOf("}",i);
-					while (end != -1 && self.substring(end,end+2) == "}}")
+					end = self.indexOf("}",i);
+					while (end !== -1 && self.substring(end,end+2) === "}}") {
 						end = self.indexOf("}",end+2);
+					}
 					
-					if(start != -1 && end != -1){
-						var param = self.substring(start+1,end);
+					if(start !== -1 && end !== -1){
+						param = self.substring(start+1,end);
 						param = parameterFormat.exec(param);
 						params.push({
 							match : param[0].length + 2,
 							index : param[1],
-							padding : param[2] != undefined ? parseInt(param[2].substring(1)) : 0,
-							format : param[3] != undefined ? param[3].substring(1) : undefined,
+							padding : param[2] !== undefined ? parseInt(param[2].substring(1),10) : 0,
+							format : param[3] !== undefined ? param[3].substring(1) : undefined,
 							value : arguments[param[1]],
 							paramAt : start
 						});
@@ -459,13 +515,8 @@
 				}
 			}
 			
-			for(var i = 0; i < params.length;i++) {
-				var p = params[i];
-				var pad = function(condition){
-					if(condition)
-						for(var i = 0; i < Math.abs(p.padding)-p.value.length; i++)
-							result.push(" ");
-				}
+			for(i = 0; i < params.length;i+=1) {
+				p = params[i];
 				
 				// grab text in front of param
 				if(p.paramAt > position){
@@ -475,38 +526,40 @@
 				
 				// do format
 				if(p.format) {
-					p.value = new formatter().format(p.format,p.value);
+					p.value = new Formatter().format(p.format,p.value);
 				}
 					
 				// do left padding
-				pad(p.padding < 0);
+				pad(p.padding,p.value,p.padding < 0,result);
 				
 				// add value to result
 				result.push(p.value);
 				position += p.length;
 				
 				// do right padding
-				pad(p.padding > 0);
+				pad(p.padding,p.value,p.padding > 0,result);
 			}
 			// grab everything after the last value
-			if(position < self.length)
+			if(position < self.length) {
 				result.push(self.substring(position,self.length));
+			}
 			
 			result = result.join('');
 			
 			return result;
 		};
-		Number.prototype.format = function(){		
-			return new formatter().format(arguments[0],this);
+		Number.prototype.format = function(format){		
+			return new Formatter().format(format,this);
 		};
-		Date.prototype.format = function(){
-			return new formatter().format(arguments[0],this);		
+		Date.prototype.format = function(format){
+			return new Formatter().format(format,this);		
 		};
-		String.format = function() {
-			var args = [];
-			for(var i = 1; i < arguments.length; i++)
+		String.format = function(format) {
+			var args = [],i;
+			for(i = 1; i < arguments.length; i++) {
 				args.push(arguments[i]);
-			return String.prototype.format.apply(arguments[0],args);
+			}
+			return String.prototype.format.apply(format,args);
 		};
 	}
-})();	
+}());	
