@@ -50,6 +50,7 @@ Differences from .Net implementation
 There are several small differences between the .Net formatter and the jsformatter:
 
 * backslashes require **double** backslashes to escape characters
+
 	"{0:#\\##}".format(12); // "1#2"
 
 References
