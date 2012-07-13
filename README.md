@@ -47,5 +47,5 @@ var date = new Date();
 References
 ==========
 
-*http://msdn.microsoft.com/en-us/library/26etazsy
-*http://blog.stevex.net/string-formatting-in-csharp/
+* http://msdn.microsoft.com/en-us/library/26etazsy
+* http://blog.stevex.net/string-formatting-in-csharp/
