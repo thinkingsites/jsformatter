@@ -30,7 +30,7 @@
 				return result;
 			},
 			count : function (stringOfItemsToLookFor,whatToCount,useEscapeCharacters){
-				useEscapeCharacters = useEscapeCharacters === undefined ? true : false;
+				useEscapeCharacters = useEscapeCharacters === undefined ? true : useEscapeCharacters;
 				var result = 0,i;
 				for(i = 0; i < whatToCount.length; i+=1){
 					if(useEscapeCharacters && whatToCount[i] === "\\") {
@@ -131,6 +131,31 @@
 			},
 			customNumberFormat : function(value,format){
 				
+				// declare variables, jsLint style
+				var 
+					rResult = [], 
+					lResult = [],
+					numberDecimalSeperatorAt,
+					formatDecimalSeperatorAt = format.indexOf("."),
+					rightFormat = format.substring(formatDecimalSeperatorAt+1),
+					leftFormat = formatDecimalSeperatorAt > -1 ? format.substring(0,formatDecimalSeperatorAt) : format,
+					roundingLength = utility.count("0#",rightFormat),
+					numberScalingRegex = /(,+)$/g,
+					regexMatch = leftFormat !== undefined && leftFormat.replace(/,+$/).match(/\\?,/g),
+					useSeperator = leftFormat !== undefined && regexMatch && regexMatch.indexOf(",") > -1,
+					valueIndex = 0,
+					rightNumber, 
+					leftNumber,
+					formatIndex,
+					toPush,
+					next,
+					rPaddingIndex,
+					lPaddingIndex,
+					scale,
+					conditions,
+					c;
+				
+				
 				// percentages change the raw value of the number being formatted, do them first
 				if(format.indexOf("%") > -1){
 					value = value * Math.pow(100,utility.count("%",format));
@@ -140,22 +165,17 @@
 					value = value * Math.pow(1000,utility.count("‰",format));
 				}
 				
+				// do number scaling, for every comma to the immediately to the left of the period, divide by 1000
+				if(leftFormat.match(numberScalingRegex)) {
+					scale = utility.count(",",(/(\\|,)*$/g).exec(leftFormat)[0],true);
+					value = value / Math.pow(1000,scale);
+				}
+				
+				// init values
 				value = value.toString();
-				var 
-					rResult = [], lResult = [],
-					numberDecimalSeperatorAt = value.indexOf("."),
-					formatDecimalSeperatorAt = format.indexOf("."),
-					rightFormat = format.substring(formatDecimalSeperatorAt+1),
-					rightNumber = numberDecimalSeperatorAt > -1 ? value.substring(numberDecimalSeperatorAt+1) : undefined, 
-					leftNumber = numberDecimalSeperatorAt > -1 ? value.substring(0,numberDecimalSeperatorAt) : value,
-					leftFormat = formatDecimalSeperatorAt > -1 ? format.substring(0,formatDecimalSeperatorAt) : format,
-					valueIndex = 0,
-					roundingLength = utility.count("0#",rightFormat),
-					formatIndex,
-					toPush,
-					next,
-					rPaddingIndex,
-					lPaddingIndex;
+				numberDecimalSeperatorAt = value.indexOf(".");
+				rightNumber = numberDecimalSeperatorAt > -1 ? value.substring(numberDecimalSeperatorAt+1) : undefined;
+				leftNumber = numberDecimalSeperatorAt > -1 ? value.substring(0,numberDecimalSeperatorAt) : value;
 				
 				// format the right part of the number first
 				if(formatDecimalSeperatorAt > -1){
@@ -168,13 +188,16 @@
 							// handle escape
 							rResult.push(rightFormat[formatIndex+1]);
 							formatIndex+=1;
+						} else if(rightFormat[formatIndex] == ","){
+							// skip by all commas unless escaped
+							continue;
 						} else if(rightNumber !== undefined && "0#".indexOf(rightFormat[formatIndex]) > -1){
 							// handle number placeholder
 							if(valueIndex >= roundingLength-1){
 								// handle rounding
 								toPush = parseInt(rightNumber[valueIndex],10);
 								if(!isNaN(toPush)) {
-									next = parseInt(rightNumber.substring(valueIndex+1),10);
+									next = parseInt(rightNumber.substring(valueIndex+1,valueIndex+2),10);
 									if(!isNaN(next) && next > 4) {
 										toPush+=1;
 									}
@@ -186,49 +209,80 @@
 							}
 							valueIndex+=1;	
 						} else {
-							// handle literal
+							// add literal
 							rResult.push(rightFormat[formatIndex]);
 						}
 					}
 					
 					// do right padding, compensate for the initial period and the index vs length
-					rPaddingIndex = rightFormat.lastIndexOf("0") + 2;
-					while(rResult.length < rPaddingIndex) {
-						rResult.push("0");	
+					regexMatch = rightFormat.match(/0|#/g);
+					rPaddingIndex = regexMatch.lastIndexOf("0") + 2;
+					rPaddingIndex = Math.max(rPaddingIndex,0);
+					if(rResult.length < rPaddingIndex) {
+						rPaddingIndex = rPaddingIndex - rResult.length;
+						rResult.push(new Array(rPaddingIndex+1).join("0"))
 					}
 				} else if (rightNumber !== undefined){
 					// if there is no seperator but there is a right number, let's round the whole value;
 					leftNumber = Math.round(value).toString();
 				}
 				
+				
+				
+				
 				// work backwards (right to left) up the number
 				// unlike the right side, include all the numbers
 				// but only if the left side is greater than zero
-				if(parseInt(leftNumber,10) > 0) {
+				if(parseInt(leftNumber,10) > 0) {		
 					formatIndex = leftFormat.length-1;
+					conditions = function(formatIndex,leftFormat){
+						var result = {
+							formatComplete : formatIndex <= -1,
+							valueComplete : valueIndex <= -1,
+							isEscaped : leftFormat[formatIndex-1] == "\\",
+							isComma : leftFormat[formatIndex] == ",",
+							isLiteral : "0#,.".indexOf(leftFormat[formatIndex]) === -1,
+						};
+						return result;
+					};
+						
 					for(valueIndex = leftNumber.length-1; valueIndex > -1; valueIndex-=1){
 						
-						// if the character in the format index is escaped, add it literally
-						if(leftFormat[formatIndex-1] === "\\") {
-							lResult.unshift(leftFormat[formatIndex]);
-							formatIndex-=2;
+						// while these conditions are true, don't add the value yet
+						for(
+							c = conditions(formatIndex,leftFormat);
+							!c.formatComplete && (c.isEscaped || c.isLiteral || c.isComma);
+							c = conditions(formatIndex,leftFormat)) {
+								
+							if (c.isEscaped)	{
+								// if the character in the format index is escaped, add it literally
+								lResult.unshift(leftFormat[formatIndex]);
+								formatIndex-=2;
+							} else if (!c.isLiteral || c.isComma) {
+								// if the character is not a literal, skip it
+								formatIndex-=1;
+							} else {
+								// if the character in the format is not a digit placeholder or seperator, add it literally
+								lResult.unshift(leftFormat[formatIndex]);
+								formatIndex-=1;
+							}
 						}
 						
-						// if the character in the format is not a digit placeholder, add it literally
-						while(formatIndex > -1 && "0#".indexOf(leftFormat[formatIndex]) === -1){
-							lResult.unshift(leftFormat[formatIndex]);
-							formatIndex-=1;
-						}
-						
+						// add the value
 						lResult.unshift(leftNumber[valueIndex]);
-						formatIndex-=1;	
+						formatIndex-=1;
+						
+						// add seperator
+						if(useSeperator && valueIndex > 0 && (leftNumber.length - valueIndex) % 3 == 0) {
+							lResult.unshift(",");
+						}	
 					}
 				}
 				
 				// add literals one by one to make sure they are not a digit place holder
 				if(formatIndex > -1) {
 					while(formatIndex > -1){
-						if ("#" !== leftFormat[formatIndex]) {
+						if ("#,".indexOf(leftFormat[formatIndex]) == -1) {
 							lResult.unshift(leftFormat[formatIndex]); 
 						}
 						formatIndex-=1;

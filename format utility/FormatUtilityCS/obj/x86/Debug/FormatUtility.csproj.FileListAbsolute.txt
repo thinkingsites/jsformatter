@@ -8,3 +8,5 @@ E:\Projects\stringformat\format utility\FormatUtilityCS\obj\x86\Debug\GenerateRe
 E:\Projects\stringformat\format utility\FormatUtilityCS\obj\x86\Debug\GenerateResource.write.1.tlog
 E:\Projects\stringformat\format utility\FormatUtilityCS\obj\x86\Debug\Formatter.exe
 E:\Projects\stringformat\format utility\FormatUtilityCS\obj\x86\Debug\Formatter.pdb
+E:\Projects\Github\jsformatter\format utility\FormatUtilityCS\obj\x86\Debug\Formatter.exe
+E:\Projects\Github\jsformatter\format utility\FormatUtilityCS\obj\x86\Debug\Formatter.pdb

@@ -9,7 +9,7 @@
 		<link type="text/css" rel="stylesheet" href="qunit.css"></script>	
 		<script type="text/javascript" src="jquery-1.7.2.min.js"></script>	
 		<script type="text/javascript" src="qunit.js"></script>	
-		<script type="text/javascript" src="string.format.js"></script>	
+		<script type="text/javascript" src="string.format.1.0.0.js"></script>	
 		<script type="text/javascript">
 			$(function(){
 				var myregex = /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
@@ -178,6 +178,7 @@
 					equal("{0:00000.00000}".format(123.456),"00123.45600");
 					equal("{0:.00000}".format(123.456),"123.45600");
 					equal("{0:.0000000}".format(0.456),".4560000");
+					equal("{0:#,##0.##0}".format(216.3),"216.300");
 				});
 				module("testing string.prototype.format with custom number formats");
 				test("digit placeholder", function(){
@@ -216,10 +217,10 @@
 					equal("{{0}} {0:###{{0}}###}".format(123456),"{{0}} 12{{3}}456");
 				});
 				test("escape slashes in number",function(){
-					/*equal("{0:0.##\\###}".format(0.12345),"0.12#35");
+					equal("{0:0.##\\###}".format(0.12345),"0.12#35");
 					equal("{0:0.##\\0##}".format(0.12345),"0.12035");
 					equal("{0:##\\###}".format(12345),"123#45");
-					equal("{0:##\\0##}".format(12345),"123045");*/
+					equal("{0:##\\0##}".format(12345),"123045");
 					equal("{0:#%\\%}".format(0.5),"50%%");
 				});
 				test("escape slashes in dates",function(){
@@ -241,10 +242,27 @@
 						),
 						"123-456-789 12/25/2009");
 				});
-				
-				// test date.format
-				// test number.format
-				// test String.format
+				test("grouping by commas",function(){
+					equal("{0:#,###}".format(123),"123");
+					equal("{0:#,###}".format(1234),"1,234");
+					equal("{0:#\\,###}".format(1234),"1,234");
+					equal("{0:#,###}".format(1234567),"1,234,567");
+					equal("{0:#\\,###}".format(1234567),"1234,567");
+					equal("{0:##,#}".format(28147483647 ),"28,147,483,647");
+					equal("{0:#.0,0}".format(28147483647 ),"28147483647.00");
+					equal("{0:#.0\\,0}".format(28147483647 ),"28147483647.0,0");
+				});
+				test("scaling by commas",function(){
+					equal("{0:#,}".format(2147483647 ),"2147484");
+					equal("{0:#,,}".format(2147483647 ),"2147");
+					equal("{0:#,,.00}".format(2147483647 ),"2147.48");
+					equal("{0:#.00,,,,}".format(2147483647 ),"2147483647.00");
+					equal("{0:#,,.00,,,,}".format(2147483647 ),"2147.48");
+					equal("{0:0\\,}".format(2147483647),"2147483647,");
+					equal("{0:0\\,,}".format(2147483647),"2147484,");
+					equal("{0:0.00\\,}".format(2147483647 ),"2147483647.00,");
+					equal("{0:0.00\\,,}".format(2147483647 ),"2147483647.00,");
+				});
 			});
 		</script>	
 	</head>	
