@@ -12,34 +12,37 @@
 		<script type="text/javascript" src="string.format.1.0.0.js"></script>	
 		<script type="text/javascript">
 			$(function(){
-				var myregex = /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
+				var myregex = function(){
+					return /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
+				};
 				module("testing regex");
 				test("match one basic",function(){
-					equal("{0}".match(myregex).length,1);
+					equal("{0}".match(myregex()).length,1);
 				});
 				test("match two basic",function(){
-					equal("{0} {1}".match(myregex).length,2);
+					equal("{0} {1}".match(myregex()).length,2);
 				});
 				test("match one with positive alignment",function(){
-					equal("{0,10}".match(myregex).length,1);
+					equal("{0,10}".match(myregex()).length,1);
 				});
 				test("match one with negative alignment",function(){
-					equal("{0,-10}".match(myregex).length,1);
+					equal("{0,-10}".match(myregex()).length,1);
 				});
 				test("match two with alternating alignment",function(){
-					equal("{0,-10} {0,10}".match(myregex).length,2);
+					equal("{0,-10} {0,10}".match(myregex()).length,2);
 				});
 				test("match one with format",function(){
-					equal("{0:$##.##}".match(myregex).length,1);
+					equal("{0:$##.##}".match(myregex()).length,1);
 				});
 				test("match two with format",function(){
-					equal("{0:$##.##} {1:yy/mm/dd}".match(myregex).length,2);
+					equal("{0:$##.##} {1:yy/mm/dd}".match(myregex()).length,2);
 				});
 				test("match two with format and alignment",function(){
-					equal("{0,10:$##.##} {1,-10:yy/mm/dd}".match(myregex).length,2);
+					equal("{0,10:$##.##} {1,-10:yy/mm/dd}".match(myregex()).length,2);
 				});
+				
 				test("get index, padding and format",function(){
-					var match = myregex.exec("{0,10:$##.##}");
+					var match = myregex().exec("{0,10:$##.##}");
 					equal(match[1], "0");
 					equal(match[2], ",10"); 
 					equal(match[3], ":$##.##");

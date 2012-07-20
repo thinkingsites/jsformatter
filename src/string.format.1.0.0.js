@@ -31,13 +31,6 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				}
 				return value;
 			},
-			padRight : function(value,padWith,toLength){
-				value = value.toString();
-				while(value.length < toLength) {
-					value = value + padWith;
-				}
-				return value;
-			},
 			extend : function() {
 				var args = arguments, result = args[0], i, n;
 				for(i = 1; i < args.length; i+=1){
@@ -53,10 +46,12 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				useEscapeCharacters = useEscapeCharacters === undefined ? true : useEscapeCharacters;
 				var result = 0,i;
 				for(i = 0; i < whatToCount.length; i+=1){
-					if(useEscapeCharacters && whatToCount[i] === "\\") {
+					if(useEscapeCharacters && whatToCount.charAt(i) === "\\") {
 						i+=2;
 					}						
-					if(stringOfItemsToLookFor.indexOf(whatToCount[i]) > -1) {
+					if(  whatToCount.charAt(i) && 
+						whatToCount.charAt(i) !== "" && 
+						stringOfItemsToLookFor.indexOf(whatToCount.charAt(i)) > -1) {
 						result+=1;		
 					}
 				}
@@ -92,6 +87,38 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					result = result.sort(sortFunction);
 				}
 				return result;
+			},
+			indexOf : function(searchIn,searchFor){
+				// IE does not support indexOf on regexp matches so we're writing a utlity method to compensate
+				var result = -1,i;
+				if(typeof searchIn.indexOf === "function") {
+					result = searchIn.indexOf(searchFor);
+				} else {
+					for(i = 0; i < searchIn.length; i+=1){
+						if(searchIn[i] === searchFor){
+							result = i;
+							break;
+						}
+					}
+				}
+				return result;
+			},
+			lastIndexOf : function(searchIn,searchFor){
+				// IE does not support lastIndexOf on regexp matches so we're writing a utlity method to compensate
+				var result = -1,i;
+				if(typeof searchIn !== "undefined"){
+					if(typeof searchIn.lastIndexOf === "function") {
+						result = searchIn.lastIndexOf(searchFor);
+					} else {
+						for(i = searchIn.length-1; i > -1; i-=1){
+							if(searchIn[i] === searchFor){
+								result = i;
+								break;
+							}
+						}
+					}
+				}
+				return result;
 			}
 		},
 		Formatter = function(){};
@@ -106,8 +133,8 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					for(i = 0; i < format.length; i+=1){
 	
 						// do escape
-						if(format[i] === "\\"){
-							result.push(format[i+1]);
+						if(format.charAt(i) === "\\"){
+							result.push(format.charAt(i+1));
 							i+=1;	
 							continue;
 						}
@@ -117,7 +144,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 						for(j = 0; j < this.dateNames.length; j+=1){
 							d = this.dateNames[j];
 							if(format.substring(i,i+d.length) === d){
-								result.push(this.date[d].apply(this,[value]));
+								result.push((this.date[d].apply(this,[value]) || "").toString());
 								i+=d.length-1;
 								pushed = true;
 								break;
@@ -127,7 +154,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 							continue;
 						}
 						
-						result.push(format[i]);
+						result.push(format.charAt(i));
 					}	
 					result = result.join('');
 				} else if (!isNaN(value)){
@@ -150,7 +177,6 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				return result;
 			},
 			customNumberFormat : function(value,format){
-				
 				// declare variables, jsLint style
 				var 
 					rResult = [], 
@@ -160,9 +186,8 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					rightFormat = format.substring(formatDecimalSeperatorAt+1),
 					leftFormat = formatDecimalSeperatorAt > -1 ? format.substring(0,formatDecimalSeperatorAt) : format,
 					roundingLength = utility.count("0#",rightFormat),
-					numberScalingRegex = /(,+)$/g,
 					regexMatch = leftFormat !== undefined && leftFormat.replace(/,+$/).match(/\\?,/g),
-					useSeperator = leftFormat !== undefined && regexMatch && regexMatch.indexOf(",") > -1,
+					useSeperator = leftFormat === undefined || regexMatch === null ? false : utility.indexOf(regexMatch,",") > -1,
 					valueIndex = 0,
 					rightNumber, 
 					leftNumber,
@@ -175,7 +200,6 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					conditions,
 					c;
 				
-				
 				// percentages change the raw value of the number being formatted, do them first
 				if(format.indexOf("%") > -1){
 					value = value * Math.pow(100,utility.count("%",format));
@@ -186,8 +210,9 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				}
 				
 				// do number scaling, for every comma to the immediately to the left of the period, divide by 1000
-				if(leftFormat.match(numberScalingRegex)) {
-					scale = utility.count(",",(/(\\|,)*$/g).exec(leftFormat)[0],true);
+				regexMatch = leftFormat.match(/(\\?,)+$/);
+				if(regexMatch && regexMatch !== null) {
+					scale = utility.count(",",regexMatch[0],true);
 					value = value / Math.pow(1000,scale);
 				}
 				
@@ -204,18 +229,18 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					
 					// do placeholders
 					for(formatIndex = 0; formatIndex < rightFormat.length; formatIndex+=1){
-						if(rightFormat[formatIndex] === "\\"){ 
+						if(rightFormat.charAt(formatIndex) === "\\"){ 
 							// handle escape
-							rResult.push(rightFormat[formatIndex+1]);
+							rResult.push(rightFormat.charAt(formatIndex+1));
 							formatIndex+=1;
-						} else if(rightFormat[formatIndex] == ","){
+						} else if(rightFormat.charAt(formatIndex) == ","){
 							// skip by all commas unless escaped
 							continue;
-						} else if(rightNumber !== undefined && "0#".indexOf(rightFormat[formatIndex]) > -1){
+						} else if(rightNumber !== undefined && "0#".indexOf(rightFormat.charAt(formatIndex)) > -1){
 							// handle number placeholder
 							if(valueIndex >= roundingLength-1){
 								// handle rounding
-								toPush = parseInt(rightNumber[valueIndex],10);
+								toPush = parseInt(rightNumber.charAt(valueIndex),10);
 								if(!isNaN(toPush)) {
 									next = parseInt(rightNumber.substring(valueIndex+1,valueIndex+2),10);
 									if(!isNaN(next) && next > 4) {
@@ -225,18 +250,18 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 									valueIndex = rightNumber.length;
 								}
 							}else if(rightNumber.length > valueIndex) {
-								rResult.push(rightNumber[valueIndex]);
+								rResult.push(rightNumber.charAt(valueIndex));
 							}
 							valueIndex+=1;	
 						} else {
 							// add literal
-							rResult.push(rightFormat[formatIndex]);
+							rResult.push(rightFormat.charAt(formatIndex));
 						}
 					}
 					
 					// do right padding, compensate for the initial period and the index vs length
 					regexMatch = rightFormat.match(/0|#/g);
-					rPaddingIndex = regexMatch.lastIndexOf("0") + 2;
+					rPaddingIndex = utility.lastIndexOf(regexMatch,"0") + 2;
 					rPaddingIndex = Math.max(rPaddingIndex,0);
 					if(rResult.length < rPaddingIndex) {
 						rPaddingIndex = rPaddingIndex - rResult.length;
@@ -259,9 +284,9 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 						var result = {
 							formatComplete : formatIndex <= -1,
 							valueComplete : valueIndex <= -1,
-							isEscaped : leftFormat[formatIndex-1] == "\\",
-							isComma : leftFormat[formatIndex] == ",",
-							isLiteral : "0#,.".indexOf(leftFormat[formatIndex]) === -1,
+							isEscaped : leftFormat.charAt(formatIndex-1) == "\\",
+							isComma : leftFormat.charAt(formatIndex) == ",",
+							isLiteral : "0#,.".indexOf(leftFormat.charAt(formatIndex)) === -1
 						};
 						return result;
 					};
@@ -276,20 +301,20 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 								
 							if (c.isEscaped)	{
 								// if the character in the format index is escaped, add it literally
-								lResult.unshift(leftFormat[formatIndex]);
+								lResult.unshift(leftFormat.charAt(formatIndex));
 								formatIndex-=2;
 							} else if (!c.isLiteral || c.isComma) {
 								// if the character is not a literal, skip it
 								formatIndex-=1;
 							} else {
 								// if the character in the format is not a digit placeholder or seperator, add it literally
-								lResult.unshift(leftFormat[formatIndex]);
+								lResult.unshift(leftFormat.charAt(formatIndex));
 								formatIndex-=1;
 							}
 						}
 						
 						// add the value
-						lResult.unshift(leftNumber[valueIndex]);
+						lResult.unshift(leftNumber.charAt(valueIndex));
 						formatIndex-=1;
 						
 						// add seperator
@@ -302,16 +327,16 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				// add literals one by one to make sure they are not a digit place holder
 				if(formatIndex > -1) {
 					while(formatIndex > -1){
-						if ("#,".indexOf(leftFormat[formatIndex]) == -1) {
-							lResult.unshift(leftFormat[formatIndex]); 
+						if ("#,".indexOf(leftFormat.charAt(formatIndex)) == -1) {
+							lResult.unshift(leftFormat.charAt(formatIndex)); 
 						}
 						formatIndex-=1;
 					}
 				}
 				
-				// do right padding
+				// do left padding
 				lPaddingIndex = leftFormat.indexOf("0");
-				lPaddingIndex = lPaddingIndex === -1 ? 1 : leftFormat.length - lPaddingIndex;
+				lPaddingIndex = lPaddingIndex === -1 ? 0 : leftFormat.length - lPaddingIndex;
 				while(lResult.length < lPaddingIndex) {
 					lResult.unshift("0");
 				}
@@ -352,10 +377,10 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 						if(i !== 0 && i % p.seperateAt === mod) {
 							result.push(p.seperator);
 						}
-						result.push(value[i]);
+						result.push(value.charAt(i));
 					}
 					for(i = location; i < value.length; i+=1) {
-						result.push(value[i]);
+						result.push(value.charAt(i));
 					}
 				} else {
 					result.push(value);
@@ -401,7 +426,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					if(exponent > -5 && (pIsNan ||exponent < precision)) {
 						result = pIsNan ? value.toString() : value.toPrecision(precision);
 					} else {
-						result = value.toExponential(pIsNan ? undefined : Math.max(precision-1,0));
+						result = value.toExponential(pIsNan ? 1 : Math.max(precision-1,0));
 					}
 					return result.toString().toUpperCase();
 				},
