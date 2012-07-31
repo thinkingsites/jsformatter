@@ -7,6 +7,14 @@
 			.fail{background-color:red;}
 		</style>
 		<link type="text/css" rel="stylesheet" href="qunit.css"></script>	
+		<script>
+			formatConfig = {
+				asPrototype : true,
+				asTypeMethod : true,
+				asGlobal : "formatter"
+			};
+		</script>
+		<script type="text/javascript" src="require.js"></script>
 		<script type="text/javascript" src="jquery-1.7.2.min.js"></script>	
 		<script type="text/javascript" src="qunit.js"></script>	
 		<script type="text/javascript" src="string.format.1.0.0.js"></script>	
@@ -265,6 +273,15 @@
 					equal("{0:0\\,,}".format(2147483647),"2147484,");
 					equal("{0:0.00\\,}".format(2147483647 ),"2147483647.00,");
 					equal("{0:0.00\\,,}".format(2147483647 ),"2147483647.00,");
+				});
+				module("configuration and amd loading");
+				test("amd loading",function(){
+					require(["jsformatter"],function(formatter){
+						equal(typeof formatter.formatString,"function");
+						equal(typeof formatter.formatValue,"function");
+						equal(formatter.formatString("hello {0}!","world"),"hello world!");
+						equal(formatter.formatValue("MM/dd/yyyy",new Date(2012,11,25,0,0,0,0)),"12/25/2012");
+					});
 				});
 			});
 		</script>	

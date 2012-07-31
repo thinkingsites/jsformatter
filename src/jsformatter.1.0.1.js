@@ -21,16 +21,11 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 */
 (function(){
 	"use strict";
-	if(typeof String.prototype.format === "undefined")
-	{
-		var utility = {
-			padLeft : function(value,padWith,toLength){
-				value = value.toString();
-				while(value.length < toLength) {
-					value = padWith + value;
-				}
-				return value;
-			},
+	var 
+		config,
+		constructor,
+		formatUtil,
+		utility = {
 			extend : function() {
 				var args = arguments, result = args[0], i, n;
 				for(i = 1; i < args.length; i+=1){
@@ -41,6 +36,21 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					}
 				}
 				return result;
+			},
+			/**
+			 * pads a string or an array with the specified character, returing the same type as was passed in
+			 */
+			pad : function(toPad,padWith,totalLength,direction) {
+				var 
+					isArray = utility.isArray(toPad), // check to see if this is an array
+					result = isArray ? toPad.slice(0) : [toPad],
+					currentLength = result.join('').length; // get the current length;
+				totalLength = Math.abs(totalLength);
+				if(currentLength < totalLength) {
+					// assume padWith is a single character
+					result[direction > 0 ? "push" : "unshift"](new Array(totalLength - currentLength +1).join(padWith)) 
+				}
+				return isArray ? result : result.join(''); // return as the same type as came in.
 			},
 			count : function (stringOfItemsToLookFor,whatToCount,useEscapeCharacters){
 				useEscapeCharacters = useEscapeCharacters === undefined ? true : useEscapeCharacters;
@@ -119,8 +129,34 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					}
 				}
 				return result;
+			},
+			isArray : function(arr){
+				return arr instanceof Array;
+			},
+			makeArray : function(arrayLike){
+				var i,result=[];
+				try
+				{
+					// this will throw errors in IE
+					result = Array.prototype.slice.call(arrayLike);
+				}
+				catch(err)
+				{
+					// catch the IE error and do the slow way
+					if(arrayLike && arrayLike.length) {
+						for(i = 0; i < arrayLike.length; i+=1)
+						{
+							result.push(arrayLike[i]);
+						}
+					}
+				}
+				return result;
 			}
-		},
+		};
+		
+	constructor = function() {
+		var Formatter,formatString,result;
+		
 		Formatter = function(){};
 		Formatter.prototype = {
 			format : function(format,value){
@@ -263,17 +299,11 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					regexMatch = rightFormat.match(/0|#/g);
 					rPaddingIndex = utility.lastIndexOf(regexMatch,"0") + 2;
 					rPaddingIndex = Math.max(rPaddingIndex,0);
-					if(rResult.length < rPaddingIndex) {
-						rPaddingIndex = rPaddingIndex - rResult.length;
-						rResult.push(new Array(rPaddingIndex+1).join("0"))
-					}
+					rResult = utility.pad(rResult,"0",rPaddingIndex,1);
 				} else if (rightNumber !== undefined){
 					// if there is no seperator but there is a right number, let's round the whole value;
 					leftNumber = Math.round(value).toString();
 				}
-				
-				
-				
 				
 				// work backwards (right to left) up the number
 				// unlike the right side, include all the numbers
@@ -337,10 +367,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				// do left padding
 				lPaddingIndex = leftFormat.indexOf("0");
 				lPaddingIndex = lPaddingIndex === -1 ? 0 : leftFormat.length - lPaddingIndex;
-				while(lResult.length < lPaddingIndex) {
-					lResult.unshift("0");
-				}
-				
+				lResult = utility.pad(lResult,"0",lPaddingIndex,-1);
 				return lResult.join('') + rResult.join('');
 				
 			},
@@ -366,7 +393,8 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				value = p.places!==undefined?parseFloat(value).toFixed(p.places):value.toString();
 				
 				// add padding
-				value = p.pad ? utility.padLeft(value,"0",p.pad) : value;
+				value = p.pad ? utility.pad(value,"0",p.pad,-1) : value;
+				
 				
 				// add seperator
 				if(p.seperateAt > 0) {
@@ -447,7 +475,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					if(isNaN(value)) {
 						result = value;
 					} else {
-						result = sign + utility.padLeft(value,"0",length || 0);
+						result = sign + utility.pad(value,"0",length || 0,-1);
 					}
 					return result;
 				}
@@ -500,7 +528,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					var mins = value.getTimezoneOffset(),
 						result = 
 							(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
-							utility.padLeft(Math.abs(Math.floor(mins/60)),"0",2).toString();
+							utility.pad(Math.abs(Math.floor(mins/60)),"0",2,-1).toString();
 					return result;
 				},
 				zzz :  function(value){
@@ -508,8 +536,8 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 						mins = value.getTimezoneOffset(),
 						result = 
 							(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
-							utility.padLeft(Math.abs(Math.floor(mins/60)),"0",2).toString() + ":" + 
-							utility.padLeft(mins % 60,"0",2);
+							utility.pad(Math.abs(Math.floor(mins/60)),"0",2,-1).toString() + ":" + 
+							utility.pad(mins % 60,"0",2,-1);
 					return result;
 				}
 			},
@@ -542,9 +570,9 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 			return new RegExp("^([" + names.join('') + "])(\\d+)?$","i");
 		}());
 		
-		String.prototype.format = function(){
+		formatString = function(format,args){
 			var 	
-				self = this,
+				self = format,
 				result = [],
 				params = [],
 				position = 0,
@@ -553,15 +581,12 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				start,
 				end,
 				i,
-				p,
-				pad = function(padding,value,condition,result){
-					if(condition) {
-						var i;
-						for(i = 0; i < Math.abs(padding)-value.length; i+=1) {
-							result.push(" ");
-						}
-					}
-				};
+				p;
+			
+			// If an array is not passed, take all the arguments after the first and turn that into the args variable
+			if(!utility.isArray(args)) {
+				args = utility.makeArray(arguments).slice(1);
+			}
 			
 			// compile the paramaters, and escape double brackets if there are any
 			// if there are no double brackets, use the regex to find parameters, 
@@ -579,7 +604,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 						index : param[1],
 						padding : param[2] !== undefined ? parseInt(param[2].substring(1),10) : 0,
 						format : param[3] !== undefined ? param[3].substring(1) : undefined,
-						value : arguments[param[1]],
+						value : args[param[1]],
 						paramAt : param.index
 					});
 				}
@@ -606,7 +631,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 							index : param[1],
 							padding : param[2] !== undefined ? parseInt(param[2].substring(1),10) : 0,
 							format : param[3] !== undefined ? param[3].substring(1) : undefined,
-							value : arguments[param[1]],
+							value : args[param[1]],
 							paramAt : start
 						});
 					}
@@ -628,15 +653,12 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					p.value = new Formatter().format(p.format,p.value);
 				}
 					
-				// do left padding
-				pad(p.padding,p.value,p.padding < 0,result);
+				// do padding
+				p.value = utility.pad(p.value," ",p.padding,p.padding);
 				
 				// add value to result
 				result.push(p.value);
 				position += p.length;
-				
-				// do right padding
-				pad(p.padding,p.value,p.padding > 0,result);
 			}
 			// grab everything after the last value
 			if(position < self.length) {
@@ -647,18 +669,61 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 			
 			return result;
 		};
-		Number.prototype.format = function(format){		
-			return new Formatter().format(format,this);
+		 
+		result = {
+			formatString : formatString,
+			formatValue : function(format,value) {
+				return new Formatter().format(format,value);
+			}
+		};
+		return result;
+	};	
+		
+	formatUtil = constructor();
+		
+	config = {
+		asPrototype : false,
+		asTypeMethod : false,
+		asGlobal : "formatter"
+	};
+	
+	if(typeof formatConfig !== "undefined" && formatConfig.hasOwnProperty) {
+		utility.extend(config,formatConfig);
+	}
+	
+	if(config.asPrototype) {
+		String.prototype.format = function(){
+			var args = utility.makeArray(arguments);
+			return formatUtil.formatString(this,args);	
+		};
+		Number.prototype.format = function(format){
+			return formatUtil.formatValue(format,this);	
 		};
 		Date.prototype.format = function(format){
-			return new Formatter().format(format,this);		
+			return formatUtil.formatValue(format,this);	
 		};
+	}
+	
+	if(config.asTypeMethod) {
 		String.format = function(format) {
 			var args = [],i;
 			for(i = 1; i < arguments.length; i++) {
 				args.push(arguments[i]);
 			}
-			return String.prototype.format.apply(format,args);
+			return formatUtil.formatString(format,args);
 		};
+		Number.format = undefined;
+		Date.format = undefined;
+	}
+	
+	if(typeof config.asGlobal === "string") {
+		window[config.asGlobal] = formatUtil;
+	}  
+	
+	if(typeof define === "function" && define.amd)
+	{
+		define('jsformatter',function(){
+			return formatUtil;
+		});
 	}
 }());	
