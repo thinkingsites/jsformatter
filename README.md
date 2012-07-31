@@ -19,8 +19,8 @@ Configuration
 			asPrototype = "true",
 			asGlobal = "formatter"
 		};
-	</string>
-	<string type="text/javascript" src="jsformatter.js">
+	</script>
+	<script type="text/javascript" src="jsformatter.js"></script>
 
 *asPrototype* adds the formatter to the prototype allowing directly from the value itself:
 	"{0:MM/dd/yyy}".format(christmas); // return "12/25/2012"
