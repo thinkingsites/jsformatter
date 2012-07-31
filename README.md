@@ -14,6 +14,7 @@ Configuration
 =============
 
 **jsformatter** allows you to configure how it's invoked. Configuration is achieved by creating a variable named *formatConfig* before the script tag:
+'''
 	<script type="text/javascript">
 		var formatConfig = {
 			asPrototype = "true",
@@ -21,6 +22,7 @@ Configuration
 		};
 	</script>
 	<script type="text/javascript" src="jsformatter.js"></script>
+'''
 
 *asPrototype* adds the formatter to the prototype allowing directly from the value itself:
 	"{0:MM/dd/yyy}".format(christmas); // return "12/25/2012"
