@@ -671,7 +671,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		};
 		 
 		result = {
-			formatString : formatString,
+			format : formatString,
 			formatValue : function(format,value) {
 				return new Formatter().format(format,value);
 			}
@@ -683,7 +683,6 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		
 	config = {
 		asPrototype : false,
-		asTypeMethod : false,
 		asGlobal : "formatter"
 	};
 	
@@ -694,7 +693,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 	if(config.asPrototype) {
 		String.prototype.format = function(){
 			var args = utility.makeArray(arguments);
-			return formatUtil.formatString(this,args);	
+			return formatUtil.format(this,args);	
 		};
 		Number.prototype.format = function(format){
 			return formatUtil.formatValue(format,this);	
@@ -702,18 +701,6 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		Date.prototype.format = function(format){
 			return formatUtil.formatValue(format,this);	
 		};
-	}
-	
-	if(config.asTypeMethod) {
-		String.format = function(format) {
-			var args = [],i;
-			for(i = 1; i < arguments.length; i++) {
-				args.push(arguments[i]);
-			}
-			return formatUtil.formatString(format,args);
-		};
-		Number.format = undefined;
-		Date.format = undefined;
 	}
 	
 	if(typeof config.asGlobal === "string") {

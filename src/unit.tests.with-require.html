@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="qunit.css"></script>
+		<script type="text/javascript" src="require.js"></script>	
+		<script>
+			var formatConfig = {
+				asPrototype : true,
+				asGlobal : "formatter"
+			};
+			requirejs.config({
+				paths : { 
+					"jquery" : "jquery-1.7.2.min",
+					"jsformatter" : "jsformatter.1.0.1"
+				}
+			});
+			require(["jsformatter","jquery","qunit","unit-tests"],function(formatter,$){
+				console.info("formatter loaded");
+				module("configuration and amd loading");
+				test("amd loading",function(){
+					require(["jsformatter"],function(formatter){
+						equal(typeof formatter.format,"function");
+						equal(typeof formatter.formatValue,"function");
+						equal(formatter.format("hello {0}!","world"),"hello world!");
+						equal(formatter.formatValue("MM/dd/yyyy",new Date(2012,11,25,0,0,0,0)),"12/25/2012");
+					});
+				});
+			});
+		</script>	
+	</head>	
+	<body>
+	<h1 id="qunit-header">QUnit example</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture">test markup, will be hidden</div>
+	</body>
+</html>

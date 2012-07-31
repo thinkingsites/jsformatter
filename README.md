@@ -10,39 +10,102 @@ For a full documentation on formatting strings using this syntax, read this page
 
 My personal favorite reference for how to use the formatting has been SteveX's blog post: http://blog.stevex.net/string-formatting-in-csharp/
 
+Configuration
+=============
+
+**jsformatter** allows you to configure how it's invoked. Configuration is achieved by creating a variable named *formatConfig* before the script tag:
+	<script type="text/javascript">
+		var formatConfig = {
+			asPrototype = "true",
+			asGlobal = "formatter"
+		};
+	</string>
+	<string type="text/javascript" src="jsformatter.js">
+
+*asPrototype* adds the formatter to the prototype allowing directly from the value itself:
+	"{0:MM/dd/yyy}".format(christmas); // return "12/25/2012"
+	123456["format"]("#,#.00"); // return "123,456.00"
+	christmas.format("MM/dd/yyy"); // return "12/25/2012"
+	
+*asGlobal* is a string create that a global variable by the same name giving access to the formatter.  
+It is set to "formatter" by default, but can be set to *undefined* if global access is not desired.
+ 	formatter.format("{0:MM/dd/yyy}",christmas); // return "12/25/2012"
+ 	 	
+**jsformatter** also supports require.js and can be invoked as follows:
+ 	require(["jsformatter"],function(formatter){
+ 		formatter.format("{0:MM/dd/yyy}",christmas);  // return "12/25/2012"
+ 	});
+ 
+Global Variable Methods
+=======================
+When configured as a global variable or when used with require, these methods are exposed.
+
+formatter.format(format[,argsN])
+--------------------------------
+
+ * **format** - The format of the string.  The format is indexed so as to reference the argumets by index
+ * **argsN** - multiple arguments, seperarated by commas, to be passed into the format
+
+	formatter.format("Today is {0:MM/dd/yyyy}!",new Date(2012,12,25,0,0,0,0)); // "Today is 12/25/2012!"
+	formatter.format("Call me at {0:(###) ###-####}!",1234567890); // "Call me at (123) 456-7890!"
+	formatter.format("Stocks rose by {0:#%} gaining {1} points on {2:dddd, dd\\t\\h of MMM}",0.05,39,new Date(2012,6,4,0,0,0,0)); // "Stocks rose by 5% gaining 39 points on Wednesday, 4th of Jul"
+
+formatter.format(format,args)
+--------------------------------
+
+ * **format** - The format of the string.  The format is indexed so as to reference the argumets by index
+ * **args** - an array of arguments, to be passed into the format
+
+	formatter.format("Today is {0:MM/dd/yyyy}!",new Date(2012,12,25,0,0,0,0)); // "Today is 12/25/2012!"
+	formatter.format("Call me at {0:(###) ###-####}!",1234567890); // "Call me at (123) 456-7890!"
+	formatter.format("Stocks rose by {0:#%} gaining {1} points on {2:dddd, dd\\t\\h of MMM}",0.05,39,new Date(2012,6,4,0,0,0,0)); // "Stocks rose by 5% gaining 39 points on Wednesday, 4th of Jul"
+
+
+formatter.formatValue(format,value)
+-----------------------------------
+
+ * **format** - The format of the value.  Unlike the *formatter.format* function, it is not indexed, and applies the format directly to the value.
+ * **value** - The value to be formatted.  Only supports *Number* and *Date* values.
+
+	formatter.formatValue("MM/dd/yyyy",christmas);  // returns "12/25/2012"
+	formatter.formatValue("#,#.000",123456);  // returns "123,456.00"
+
+Prototype Methods
+=================
+
+When added to the prototype, these methods are exposed.
+
 String.prototype.format([,argsN])
 ---------------------------------
 
-Allows you to create format a string from the format string itself.
+Formats a string.  Assumes that the string is the format, passing in the arguments. The format is indexed so as to reference the argumets by index
 
-	"Today is {0:MM/dd/yyyy}!".format(new Date(2012,12,25,0,0,0,0)); // "Today is 12/25/2012!"
-	"Call me at {0:(###) ###-####}!".format(1234567890); // "Call me at (123) 456-7890!"
-	"Stocks rose by {0:#%} gaining {1} points on {2:dddd, dd\\t\\h of MMM}".format(0.05,39,new Date(2012,6,4,0,0,0,0)); // "Stocks rose by 5% gaining 39 points on Wednesday, 4th of Jul"
+ * **argsN** - multiple arguments, seperarated by commas, to be passed into the format
 
-String.format(format,[,argsN])
---------------------------------
+	"Today is {0:MM/dd/yyyy}!".format(new Date(2012,12,25,0,0,0,0)); // returns "Today is 12/25/2012!"
+	"Call me at {0:(###) ###-####}!".format(1234567890); // returns "Call me at (123) 456-7890!"
+	"Stocks rose by {0:#%} gaining {1} points on {2:dddd, dd\\t\\h of MMM}".format(0.05,39,new Date(2012,6,4,0,0,0,0)); // returns "Stocks rose by 5% gaining 39 points on Wednesday, 4th of Jul"
 
-Allows you to pass the format into a singleton function
-
-	String.format("{0:000000}",1234); // "001234"
-	String.format("{0} {1}","hello world"); // "hello world"
-
-Number.format(format)
+Number.prototype.format(format)
 ---------------------
 
-Allows you to format a number.
+Allows you to format a number.  Invoking the format method must be done either by accessing the method through the indexer, or creating a new *Number* object
 A current limitation of this implementation is that the number must be wrapped in a Number object to work.
 
-	new Number(9).format("c"); // "$9.00"
-	new Number(12345.6789).format("#.##"); // "12345.68"
+ * **format** - The format applied to the *Number*.  This format is not indexed.
 
-Date.format(format)
+	123456['format']("#,#.00"); // returns "123,456.00"
+	new Number(9).format("c"); // returns "$9.00"
+
+Date.prototype.format(format)
 -------------------
 
-Allows you to format a date
+Allows you to format a date.
+
+ * **format** - The format applied to the *Number*.  This format is not indexed.
 
 	var date = new Date();
-	date.format("MM/dd/yyyy"); // "12/25/2012"
+	date.format("MM/dd/yyyy"); // returns "12/25/2012"
 
 Differences from .Net implementation
 ------------------------------------
@@ -51,7 +114,7 @@ There are several small differences between the .Net formatter and the jsformatt
 
 * backslashes require **double** backslashes to escape characters
 
-	"{0:#\\##}".format(12); // "1#2"
+	"{0:#\\##}".format(12); // returns "1#2"
 
 References
 ==========

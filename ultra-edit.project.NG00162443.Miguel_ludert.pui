@@ -1,15 +1,23 @@
 [Open Files]
 Active File Display Mode=3
-Active File Index=0
-Open File Line0=20635
-Open File Line1=11022
-Open File Pos0=21754
-Open File Pos1=12829
-Open File Window Pos0=2,3,-1,-1,-4,-30,22,29,1496,714
-Open File Window Pos1=0,1,-1,-1,-4,-30,44,58,1518,745
-Open File0=E:\Projects\Github\jsformatter\src\string.format.1.0.0.js
-Open File1=E:\Projects\Github\jsformatter\src\unit.tests.html
-Open File2=
+Active File Index=2
+Open File Line0=0
+Open File Line1=0
+Open File Line2=6404
+Open File Line3=721
+Open File Pos0=15
+Open File Pos1=1706
+Open File Pos2=10743
+Open File Pos3=738
+Open File Window Pos0=0,1,-1,-1,-4,-30,44,58,1518,745
+Open File Window Pos1=0,1,-1,-1,-4,-30,88,116,1562,803
+Open File Window Pos2=2,3,-1,-1,-4,-30,154,203,1628,890
+Open File Window Pos3=0,1,-1,-1,-4,-30,176,232,1650,919
+Open File0=E:\Projects\Github\jsformatter\src\unit.tests.with-require.html
+Open File1=E:\Projects\Github\jsformatter\README.md
+Open File2=E:\Projects\Github\jsformatter\src\unit-tests.js
+Open File3=E:\Projects\Github\jsformatter\src\unit.tests.no-require.html
+Open File4=
 Remember Files=1
 
 [Project Information]
