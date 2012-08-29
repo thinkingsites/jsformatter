@@ -1,16 +1,32 @@
 [Open Files]
 Active File Display Mode=3
-Active File Index=0
-Open File Line0=619
-Open File Pos0=972
-Open File Window Pos0=2,3,-1,-1,-4,-30,88,116,1562,803
-Open File0=E:\Projects\Github\jsformatter\README.md
-Open File1=
+Active File Index=2
+Open File Line0=882
+Open File Line1=9884
+Open File Line2=22292
+Open File Line3=0
+Open File Line4=0
+Open File Pos0=990
+Open File Pos1=10898
+Open File Pos2=23019
+Open File Pos3=0
+Open File Pos4=192
+Open File Window Pos0=0,1,-1,-1,-4,-30,132,174,1694,623
+Open File Window Pos1=0,1,-1,-1,-4,-30,44,58,1606,524
+Open File Window Pos2=2,3,-1,-1,-4,-30,66,87,1628,553
+Open File Window Pos3=0,1,-1,-1,-4,-30,88,116,1650,582
+Open File Window Pos4=0,1,-1,-1,-4,-30,132,174,1694,640
+Open File0=C:\Dev\VSS\RNS_SOURCE\RNS_3_3\libraries\WCF_RNSCrashProcessing\GenericTREDSCrashProcessor.cs
+Open File1=E:\Projects\Github\jsformatter\src\unit-tests.js
+Open File2=E:\Projects\Github\jsformatter\src\jsformatter.1.0.1.js
+Open File3=E:\Projects\Github\jsformatter\src\jsformatter.min.1.0.1.js
+Open File4=E:\Projects\Github\mongooey\src\mvc\routing.js
+Open File5=
 Remember Files=1
 
 [Project Information]
 Project Start=DC070700040013000B0012001A00000038
-Working Time=65969
+Working Time=207907
 
 [Folders]
 .\src\=1

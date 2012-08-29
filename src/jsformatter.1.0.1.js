@@ -272,9 +272,11 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 						} else if(rightFormat.charAt(formatIndex) == ","){
 							// skip by all commas unless escaped
 							continue;
-						} else if(rightNumber !== undefined && "0#".indexOf(rightFormat.charAt(formatIndex)) > -1){
+						} else if("0#".indexOf(rightFormat.charAt(formatIndex)) > -1){
 							// handle number placeholder
-							if(valueIndex >= roundingLength-1){
+							if(typeof rightNumber === "undefined") {
+								rResult.push(0);
+							} else if(valueIndex >= roundingLength-1){
 								// handle rounding
 								toPush = parseInt(rightNumber.charAt(valueIndex),10);
 								if(!isNaN(toPush)) {
@@ -592,7 +594,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 			// if there are no double brackets, use the regex to find parameters, 
 			// this should be slightly faster in native code, and less error prone (if there are any bugs)
 			// if there are double brackets, use the looping code to compensate for escaping values
-			if(self.indexOf("{{") === -1 && self.indexOf("}}") -1){	
+			if(self.indexOf("{{") === -1 && self.indexOf("}}") === -1){	
 				// use the format with brackets
 				parameterFormat = /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
 				for (param = parameterFormat.exec(self);
@@ -707,10 +709,14 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		window[config.asGlobal] = formatUtil;
 	}  
 	
-	if(typeof define === "function" && define.amd)
-	{
+	if(typeof define === "function" && define.amd) {
+		// auto detect and bind to requirejs
 		define('jsformatter',function(){
 			return formatUtil;
 		});
+	} else if(typeof module !== undefined && typeof module.exports) {
+		// auto detect and bind to nodejs
+		module.exports = formatUtil;
+		this._ = formatUtil;
 	}
 }());	

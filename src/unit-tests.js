@@ -246,6 +246,17 @@ var callback = (function($){
 			equal("{0:0.00\\,}".format(2147483647 ),"2147483647.00,");
 			equal("{0:0.00\\,,}".format(2147483647 ),"2147483647.00,");
 		});
+		module("addenda");
+		test("whole number values with decimal formats and thousands comma",function(){
+			equal("{0:#,##0.##0}".format(628),"628.000");
+			equal("{0:#,##0.##0}".format(1411),"1,411.000");
+			equal("{0:#,##0.##0}".format(562),"562.000");
+			equal("{0:#,##0.##0}".format(5055),"5,055.000");
+			equal("{0:#,##0.##0}".format(4484),"4,484.000");
+			equal("{0:#,##0.##0}".format(1484),"1,484.000");
+			equal("{0:#,##0.##0}".format(4625),"4,625.000");
+			equal("{0:#,##0.##0}".format(4625),"4,625.000");
+		});
 	});
 });
 
