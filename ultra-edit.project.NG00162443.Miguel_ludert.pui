@@ -1,33 +1,24 @@
 [Open Files]
 Active File Display Mode=3
-Active File Index=2
-Open File Line0=882
-Open File Line1=9884
-Open File Line2=22292
-Open File Line3=0
-Open File Line4=0
-Open File Pos0=990
-Open File Pos1=10898
-Open File Pos2=23019
-Open File Pos3=0
-Open File Pos4=192
+Active File Index=1
+Open File Line0=3128
+Open File Line1=173
+Open File Line2=0
+Open File Pos0=5376
+Open File Pos1=862
+Open File Pos2=64
 Open File Window Pos0=0,1,-1,-1,-4,-30,132,174,1694,623
-Open File Window Pos1=0,1,-1,-1,-4,-30,44,58,1606,524
-Open File Window Pos2=2,3,-1,-1,-4,-30,66,87,1628,553
-Open File Window Pos3=0,1,-1,-1,-4,-30,88,116,1650,582
-Open File Window Pos4=0,1,-1,-1,-4,-30,132,174,1694,640
+Open File Window Pos1=2,3,-1,-1,-4,-30,132,174,1694,640
+Open File Window Pos2=0,1,-1,-1,-4,-30,154,203,1716,669
 Open File0=C:\Dev\VSS\RNS_SOURCE\RNS_3_3\libraries\WCF_RNSCrashProcessing\GenericTREDSCrashProcessor.cs
-Open File1=E:\Projects\Github\jsformatter\src\unit-tests.js
-Open File2=E:\Projects\Github\jsformatter\src\jsformatter.1.0.1.js
-Open File3=E:\Projects\Github\jsformatter\src\jsformatter.min.1.0.1.js
-Open File4=E:\Projects\Github\mongooey\src\mvc\routing.js
-Open File5=
+Open File1=E:\Projects\Github\mongooey\src\mvc\Routing.js
+Open File2=E:\Projects\Github\mongooey\src\mvc\ValueProvider.js
+Open File3=
 Remember Files=1
 
 [Project Information]
 Project Start=DC070700040013000B0012001A00000038
-Working Time=207907
+Working Time=234770
 
 [Folders]
 .\src\=1
-

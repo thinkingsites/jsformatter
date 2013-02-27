@@ -184,7 +184,7 @@ var callback = (function($){
 		});
 		test("literals in digit format",function(){
 			equal("{0:(###) ###-####}".format(1234567890),"(123) 456-7890");	
-			equal("{0:#.###-###-###}".format(0.123456789),".123-456-789");		
+			equal("{0:#.###-###-###}".format(0.123456789),"0.123-456-789");		
 			equal("{0:0.###-###-###}".format(0.123456789),"0.123-456-789");		
 			equal("{0:###-###-###}".format(12345),"-12-345");		
 			equal("{0:.###-###-###}".format(0.12345),".123-45-");	
@@ -256,6 +256,47 @@ var callback = (function($){
 			equal("{0:#,##0.##0}".format(1484),"1,484.000");
 			equal("{0:#,##0.##0}".format(4625),"4,625.000");
 			equal("{0:#,##0.##0}".format(4625),"4,625.000");
+		});
+		test("zeros in placeholder",function(){
+			equal(formatter.format("{0:#.###}",0.012),"0.012");		
+		});
+		test("ones place when zero",function(){
+			equal(formatter.format("{0:.###}",0.005),".005");
+			equal(formatter.format("{0:#.###}",0.005),"0.005");
+			equal(formatter.format("{0:.000}",0.005),".005");
+			equal(formatter.format("{0:0.000}",0.005),"0.005");
+			equal(formatter.format("{0:0.000}",1.005),"1.005");
+			equal(formatter.format("{0:0.000}",1.005),"1.005");
+		});
+		test("to fixed",function(){
+			equal(formatter.format("{0:#.###}",0.0000000000005),"0.000");
+		});
+		test("format negative",function(){
+			equal(formatter.format("{0}",-1234),"-1234");
+			equal(formatter.format("{0:#.000}",-1234),"-1234.000");
+			equal(formatter.format("{0:#.###}",-0.0000005),"0.000");
+		});
+		test("pass in null",function(){
+			equal(formatter.format("{0:#.###}",null),"");
+			equal(formatter.format("{0:#.###}",undefined),"");		
+		});
+		test("pass in unexpected value",function(){
+			equal(formatter.format("{0:#.###}","charlie"),"charlie");
+			equal(formatter.format("{0:#.###}",false),"false");		
+		});
+		test("pass in object",function(){
+			equal(formatter.format("{text}",{
+				text : "astral projection",
+				number : 1234.5678
+			}),"astral projection");
+			equal(formatter.format("{number}",{
+				text : "astral projection",
+				number : 1234.5678
+			}),"1234.5678");		
+			equal(formatter.format("{text} x {number:0.00}",{
+				text : "astral projection",
+				number : 1234.5678
+			}),"astral projection x 1234.57");	
 		});
 	});
 });
