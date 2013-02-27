@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-This package replicates the .Net formatting functionality.  
+This package replicates and extends the .Net formatting functionality.  
 For full usage documentation refer here:
 http://msdn.microsoft.com/en-us/library/26etazsy
 */
@@ -149,6 +149,18 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				}
 				return result;
 			},
+			isNumber : function(obj){
+				return toString.call(obj) === '[object Number]';	
+			},
+			isFunction : function(obj){
+				return toString.call(obj) === '[object Function]';	
+			},
+			isDate : function(obj){
+				return toString.call(obj) === '[object Date]';	
+			},
+			isObject : function(obj){
+				return obj === Object(obj);
+			},
 			isArray : function(arr){
 				return arr instanceof Array;
 			},
@@ -172,6 +184,14 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				return result;
 			}
 		};
+		
+		// stolen from underscore.js
+		// Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+		//  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+		//      _['is' + name] = function(obj) {
+		//      return toString.call(obj) == '[object ' + name + ']';
+		//    };
+		//  });
 		
 	constructor = function() {
 		var Formatter,formatString,result;
@@ -607,10 +627,11 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				i,
 				p;
 			
-			// If an array is not passed, take all the arguments after the first and turn that into the args variable
-			if(!utility.isArray(args)) {
+			
+			if(!utility.isObject(args) && !utility.isArray(args)) {
+				// If first argument is not an array or an object, take all the arguments after the first and turn that into the args variable
 				args = utility.makeArray(arguments).slice(1);
-			}
+			} 
 			
 			// compile the paramaters, and escape double brackets if there are any
 			// if there are no double brackets, use the regex to find parameters, 
@@ -618,7 +639,14 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 			// if there are double brackets, use the looping code to compensate for escaping values
 			if(self.indexOf("{{") === -1 && self.indexOf("}}") === -1){	
 				// use the format with brackets
-				parameterFormat = /\{(\d+)(,-?\d+)?(:.*?)?\}/gi;
+				
+				
+				
+				
+				parameterFormat = /\{(\w+)(,-?\d+)?(:.*?)?\}/gi;  
+				
+				
+				
 				for (param = parameterFormat.exec(self);
 					param !== null;
 					param = parameterFormat.exec(self))
@@ -673,7 +701,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				}
 				
 				// do format only if the value is a date or a number
-				if(p.format && !utility.isNullOrUndefined(p.value) && (p.value instanceof Date || !isNaN(p.value))) {
+				if(p.format && (utility.isDate(p.value) || utility.isNumber(p.value))) {
 					p.value = new Formatter().format(p.format,p.value);
 				}
 					

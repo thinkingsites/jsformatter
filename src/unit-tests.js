@@ -296,10 +296,10 @@ var callback = (function($){
 				text : "astral projection",
 				number : 1234.5678
 			}),"1234.5678");		
-			equal(formatter.format("{text} x {number:0.00}",{
+			equal(formatter.format("{text} x {number:0.0000}",{
 				text : "astral projection",
 				number : 1234.5678
-			}),"astral projection x 1234.57");	
+			}),"astral projection x 1234.5678");	
 		});
 	});
 });
