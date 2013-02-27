@@ -26,6 +26,25 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		constructor,
 		formatUtil,
 		utility = {
+			isNullOrUndefined : function(value) {
+				return typeof value === "undefined" || value === null;
+			},
+			numberToString : function(value){
+				var result,exponent,valueAsString = value.toString();
+				if(valueAsString.indexOf('e') > -1) {
+					exponent = valueAsString.match(/\d+$/);
+					if(valueAsString.indexOf('e-') > -1) {
+						// handle negative exponents
+						result = value.toFixed(exponent);
+					} else {
+						// positive exponents are a bit more complex
+						throw "Positive exponents not yet supported";	
+					}
+				} else {
+					result = valueAsString;	
+				}	
+				return result;
+			},
 			extend : function() {
 				var args = arguments, result = args[0], i, n;
 				for(i = 1; i < args.length; i+=1){
@@ -215,6 +234,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 			customNumberFormat : function(value,format){
 				// declare variables, jsLint style
 				var 
+					rawValue = value,
 					rResult = [], 
 					lResult = [],
 					numberDecimalSeperatorAt,
@@ -252,8 +272,10 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					value = value / Math.pow(1000,scale);
 				}
 				
+				// convert value to string
+				value = utility.numberToString(value);
+
 				// init values
-				value = value.toString();
 				numberDecimalSeperatorAt = value.indexOf(".");
 				rightNumber = numberDecimalSeperatorAt > -1 ? value.substring(numberDecimalSeperatorAt+1) : undefined;
 				leftNumber = numberDecimalSeperatorAt > -1 ? value.substring(0,numberDecimalSeperatorAt) : value;
@@ -310,53 +332,50 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				// work backwards (right to left) up the number
 				// unlike the right side, include all the numbers
 				// but only if the left side is not zero
-				//if(Math.abs(parseInt(value)) > 0) {
-				{
-					formatIndex = leftFormat.length-1; // set the start of the formatting at the furthest right character
-					conditions = function(valueIndex,formatIndex,leftFormat){
-						var result = {
-							formatComplete : formatIndex <= -1,
-							valueComplete : valueIndex <= -1,
-							isEscaped : leftFormat.charAt(formatIndex-1) == "\\",
-							isComma : leftFormat.charAt(formatIndex) == ",",
-							isLiteral : "0#,.".indexOf(leftFormat.charAt(formatIndex)) === -1
-						};
-						return result;
+				formatIndex = leftFormat.length-1; // set the start of the formatting at the furthest right character
+				conditions = function(valueIndex,formatIndex,leftFormat){
+					var result = {
+						formatComplete : formatIndex <= -1,
+						valueComplete : valueIndex <= -1,
+						isEscaped : leftFormat.charAt(formatIndex-1) == "\\",
+						isComma : leftFormat.charAt(formatIndex) == ",",
+						isLiteral : "0#,.".indexOf(leftFormat.charAt(formatIndex)) === -1
 					};
-						
-					for(valueIndex = leftNumber.length-1; valueIndex > -1; valueIndex-=1){
-						
-						// while these conditions are true, don't add the value yet
-						for(
-							c = conditions(valueIndex,formatIndex,leftFormat);
-							!c.formatComplete && (c.isEscaped || c.isLiteral || c.isComma);
-							c = conditions(valueIndex,formatIndex,leftFormat)) {
-								
-							if (c.isEscaped)	{
-								// if the character in the format index is escaped, add it literally
-								lResult.unshift(leftFormat.charAt(formatIndex));
-								formatIndex-=2;
-							} else if (!c.isLiteral || c.isComma) {
-								// if the character is not a literal, skip it
-								formatIndex-=1;
-							} else {
-								// if the character in the format is not a digit placeholder or seperator, add it literally
-								lResult.unshift(leftFormat.charAt(formatIndex));
-								formatIndex-=1;
-							}
-						}
-						
-						// add the value
-						if(leftFormat.length > 0 || parseInt(value) !== 0){
-							lResult.unshift(leftNumber.charAt(valueIndex));
+					return result;
+				};
+					
+				for(valueIndex = leftNumber.length-1; valueIndex > -1; valueIndex-=1){
+					
+					// while these conditions are true, don't add the value yet
+					for(
+						c = conditions(valueIndex,formatIndex,leftFormat);
+						!c.formatComplete && (c.isEscaped || c.isLiteral || c.isComma);
+						c = conditions(valueIndex,formatIndex,leftFormat)) {
+							
+						if (c.isEscaped)	{
+							// if the character in the format index is escaped, add it literally
+							lResult.unshift(leftFormat.charAt(formatIndex));
+							formatIndex-=2;
+						} else if (!c.isLiteral || c.isComma) {
+							// if the character is not a literal, skip it
+							formatIndex-=1;
+						} else {
+							// if the character in the format is not a digit placeholder or seperator, add it literally
+							lResult.unshift(leftFormat.charAt(formatIndex));
 							formatIndex-=1;
 						}
-							
-						// add seperator
-						if(useSeperator && valueIndex > 0 && (leftNumber.length - valueIndex) % 3 == 0) {
-							lResult.unshift(",");
-						}	
 					}
+					
+					// add the value
+					if(leftFormat.length > 0 || parseInt(value) !== 0){
+						lResult.unshift(leftNumber.charAt(valueIndex));
+						formatIndex-=1;
+					}
+						
+					// add seperator
+					if(useSeperator && valueIndex > 0 && (leftNumber.length - valueIndex) % 3 == 0) {
+						lResult.unshift(",");
+					}	
 				}
 				
 				// add literals one by one to make sure they are not a digit place holder
@@ -654,7 +673,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				}
 				
 				// do format only if the value is a date or a number
-				if(p.format && (p.value instanceof Date || !isNaN(p.value))) {
+				if(p.format && !utility.isNullOrUndefined(p.value) && (p.value instanceof Date || !isNaN(p.value))) {
 					p.value = new Formatter().format(p.format,p.value);
 				}
 					

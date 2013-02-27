@@ -268,8 +268,11 @@ var callback = (function($){
 			equal(formatter.format("{0:0.000}",1.005),"1.005");
 			equal(formatter.format("{0:0.000}",1.005),"1.005");
 		});
-		test("to fixed",function(){
+		test("negative exponents",function(){
 			equal(formatter.format("{0:#.###}",0.0000000000005),"0.000");
+		});
+		test("positive exponents",function(){
+			equal(formatter.format("{0:0}",5000000000000000000000),"5000000000000000000000");
 		});
 		test("format negative",function(){
 			equal(formatter.format("{0}",-1234),"-1234");
