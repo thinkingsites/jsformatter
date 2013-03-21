@@ -39,7 +39,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 					} else {
 						// positive exponents are a bit more complex
 						base = valueAsString.match(/^-?\d+(\.\d+)?/)[0].replace(/\./,''); // don't bother multiplying, just remove the decimal
-						result = base + new Array(exponent-base.length+2).join('0');
+						result = base + new Array(exponent-base.length).join('0');
 					}
 				} else {
 					result = valueAsString;	

@@ -282,7 +282,7 @@ var callback = (function($){
 			//equal(formatter.format("{0:000.000}",0),"000.000");
 		});
 		test("positive exponents",function(){
-			for(var i = 0; i < 30 ; i ++)
+			for(var i = 0; i < 25 ; i ++)
 			{
 					var myString = "5" + new Array(i).join("0"),myInt = parseInt(myString);
 					equal(formatter.format("{0:0}",myInt),myString);
