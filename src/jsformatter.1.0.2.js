@@ -157,16 +157,16 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 				return result;
 			},
 			isNumber : function(obj){
-				return toString.call(obj) == '[object Number]';	
+				return Object.prototype.toString.call(obj) == '[object Number]';	
 			},
 			isFunction : function(obj){
 				return typeof obj === "function";
 			},
 			isDate : function(obj){
-				return toString.call(obj) == '[object Date]';	
+				return Object.prototype.toString.call(obj) == '[object Date]';	
 			},
 			isString : function(obj){
-				return toString.call(obj) == '[object String]';	
+				return Object.prototype.toString.call(obj) == '[object String]';	
 			},
 			isObject : function(obj){
 				return obj === Object(obj) && !utility.isFunction(obj);
