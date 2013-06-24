@@ -590,7 +590,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
                     if (hours > 12) {
                         hours -= 12;
                     }
-                    return hours;
+                    return utility.pad(hours,"0",2,-1);
                 },
                 HH: function (value) {
                     return utility.pad(value.getHours(),"0",2,-1);
