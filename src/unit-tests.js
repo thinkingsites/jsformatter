@@ -318,13 +318,18 @@ var callback = (function($){
 				text : "astral projection",
 				number : 1234.5678
 			}),"astral projection x 1,234.5678");	
-		});
+		});
 		test("functions as values",function(){
 			var text = function() { return "astral projection"; };
 			var number = function() { return 1234.5678; };
 			equal(formatter.format("{0} x {1:#,###.0000}",text,number),"astral projection x 1,234.5678");	
 			equal(formatter.format("{text} x {number:#,###.0000}",{ text : text, number : number }),"astral projection x 1,234.5678");	
 			equal(formatter.formatValue("#,###.0000",number),"1,234.5678");	
+		});
+		module("bugs");
+		test("date formatting bug when using formatter",function(){
+			var date = new Date("Tue Feb 07 2012 05:05:03 GMT-0500 (Eastern Standard Time)");
+			equal(formatter.format('{0:MM/dd/yyyy hh:mm:ss tt}', date),"2/7/2012 05:05:03 AM");	
 		});
 	});
 });
