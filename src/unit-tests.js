@@ -318,7 +318,7 @@ var callback = (function($){
 				text : "astral projection",
 				number : 1234.5678
 			}),"astral projection x 1,234.5678");	
-		});
+		});
 		test("functions as values",function(){
 			var text = function() { return "astral projection"; };
 			var number = function() { return 1234.5678; };
@@ -330,6 +330,11 @@ var callback = (function($){
 		test("date formatting bug when using formatter",function(){
 			var date = new Date("Tue Feb 07 2012 05:05:03 GMT-0500 (Eastern Standard Time)");
 			equal(formatter.format('{0:MM/dd/yyyy hh:mm:ss tt}', date),"2/7/2012 05:05:03 AM");	
+		});
+		test("formatting zero values",function(){
+			equal("{0}".format(0),"0");
+			equal("{0:0.00}".format(0),"0.00");
+			equal("{0:c}".format(0),"$0.00");
 		});
 	});
 });

@@ -476,7 +476,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
                     pad: undefined
                 }, p);
                 var 
-					result = [(value > 0 ? "" : "-"), p.prefix],
+					result = [(value >= 0 ? "" : "-"), p.prefix],
 					location,
 					mod,
 					i;
