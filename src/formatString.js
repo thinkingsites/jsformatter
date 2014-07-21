@@ -32,7 +32,17 @@ function formatString(format,values){
 		}
 		else {
 			// if the argument is an object it has formatting instructions
-			result.push(resolve(values[item.index]))
+			var value = resolve(values[item.index]);
+
+			if(isDate(value)){
+				value = formatDate(item.format,value);
+			} else if(isNumber) {
+				// TODO do numbers
+			}
+
+			// TODO do padding
+
+			result.push(value);
 		}
 	});
 

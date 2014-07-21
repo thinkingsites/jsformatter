@@ -1,4 +1,4 @@
-module("formatString");
+module("basic formatString");
 test("no arguments, just string",function(){
 	var thing = "mary had a little lamb";
 	ok(formatString(thing) === thing);
