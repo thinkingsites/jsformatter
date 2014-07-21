@@ -1,4 +1,4 @@
- function chunks(format) {
+ function getChunks(format) {
     var regex = (format||"").match(/(\{\{?.*?\}?\})|(.)/gi);
     var result = [];
     regex.forEach(function(item){

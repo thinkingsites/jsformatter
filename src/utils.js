@@ -25,3 +25,9 @@ function isObject(obj) {
 function isArray(arr) {
     return arr instanceof Array;
 }
+function resolve(valOrFunc){
+    if(isFunction(valOrFunc))
+        return valOrFunc();
+    else
+        return valOrFunc;
+}
