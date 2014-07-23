@@ -19,28 +19,22 @@ function formatString(format,values){
 		values = values();
 	}
 
-	// if the values, after possible invocation, is not an object or array grab all the arguments but the first
-	if(!isArray(values) && !isObject(values)){
-	}
-
 	var chunks = getChunks(format);
 	var result = [];
 	chunks.forEach(function(item){
 		if(isString(item)){
 			// if the item is a string, it's not parameter, add it straight to the results
 			result.push(item);
-		}
-		else {
+		} else {
 			// if the argument is an object it has formatting instructions
 			var value = resolve(values[item.index]);
 
-			if(isDate(value)){
-				value = formatDate(item.format,value);
-			} else if(isNumber) {
-				// TODO do numbers
+			// if we're not given a format, we'll do a normal to string on the data
+			if(item.format) {
+				formatValue(item.format,value);
 			}
 
-			// TODO do padding
+			value = pad(value, " ", item.padding, item.padding);
 
 			result.push(value);
 		}

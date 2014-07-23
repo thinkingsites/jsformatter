@@ -57,3 +57,7 @@ test("formatDate intregration into formatString ",function(){
         formatString("{0:MM/dd/yyyy} {1:MM/dd/yyyy} {2:U} {3:U}!",mytestdate,mytestdate,mytestdate,mytestdate),
         "12/25/2010 12/25/2010 December 25,2010 10:30:29 PM December 25,2010 10:30:29 PM!");
 });
+test("(LEGACY BUG) date formatting bug when using formatter",function(){
+    var date = new Date("Tue Feb 07 2012 05:05:03 GMT-0500 (Eastern Standard Time)");
+    equal(formatString('{0:MM/dd/yyyy hh:mm:ss tt}', date),"2/7/2012 05:05:03 AM");
+});

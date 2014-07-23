@@ -15,13 +15,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-This package replicates and extends the .Net formatting functionality.  
+This package replicates and extends the .Net formatting functionality.
 For full usage documentation refer here:
 http://msdn.microsoft.com/en-us/library/26etazsy
 */
 (function () {
     "use strict";
-    var 
+    var
 		config,
 		constructor,
 		formatUtil,
@@ -61,7 +61,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		    * pads a string or an array with the specified character, returing the same type as was passed in
 		    */
 		    pad: function (toPad, padWith, totalLength, direction) {
-		        var 
+		        var
 					isArray = utility.isArray(toPad), // check to see if this is an array
 					result = isArray ? toPad.slice(0) : [toPad],
 					currentLength = result.join('').length; // get the current length;
@@ -72,7 +72,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
 		        }
 		        return isArray ? result : result.join(''); // return as the same type as came in.
 		    },
-		    /** 
+		    /**
 		    * count the number of characters in a string
 		    */
 		    count: function (lookInside, lookFor, useEscapeCharacters) {
@@ -271,9 +271,9 @@ http://msdn.microsoft.com/en-us/library/26etazsy
                 }
                 return result;
             },
-            customNumberFormat: function (value, format) {
+            customNumberFormat: function (format,value) {
                 // declare variables, jsLint style
-                var 
+                var
 					rawValue = value,
 					rResult = [],
 					lResult = [],
@@ -475,7 +475,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
                     suffix: undefined,
                     pad: undefined
                 }, p);
-                var 
+                var
 					result = [(value >= 0 ? "" : "-"), p.prefix],
 					location,
 					mod,
@@ -540,7 +540,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
                     });
                 },
                 g: function (format, value, precision) {
-                    var 
+                    var
 						result,
 						pIsNan = isNaN(precision),
 						exponent = value.toExponential(precision).toString(),
@@ -627,7 +627,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
                     return result;
                 },
                 zzz: function (value) {
-                    var 
+                    var
 						mins = value.getTimezoneOffset(),
 						result =
 							(mins > 0 ? "-" : "") + // if the offset is positive, the time zone is negative
@@ -666,25 +666,25 @@ http://msdn.microsoft.com/en-us/library/26etazsy
         } ());
 
         formatString = function (format, args) {
-            var 
-							self = format,
-							result = [],
-							params = [],
-							position = 0,
-							parameterFormat,
-							param,
-							start,
-							end,
-							i,
-							p,
-							calcValue = function (value) {
-							    return (utility.isFunction(value) ? value() : value);
-							};
-				
-						// if the first arg is a function, resolve it.  It could resolve into an array or object that we need
-						if(utility.isFunction(args)){
-								args = args();
-						}
+            var
+				self = format,
+				result = [],
+				params = [],
+				position = 0,
+				parameterFormat,
+				param,
+				start,
+				end,
+				i,
+				p,
+				calcValue = function (value) {
+				    return (utility.isFunction(value) ? value() : value);
+				};
+
+			// if the first arg is a function, resolve it.  It could resolve into an array or object that we need
+			if(utility.isFunction(args)){
+					args = args();
+			}
 
             if (utility.isDate(args) || (!utility.isObject(args) && !utility.isArray(args))) {
                 // If first argument is not an array or an object, take all the arguments after the first and turn that into the args variable
@@ -692,7 +692,7 @@ http://msdn.microsoft.com/en-us/library/26etazsy
             }
 
             // compile the paramaters, and escape double brackets if there are any
-            // if there are no double brackets, use the regex to find parameters, 
+            // if there are no double brackets, use the regex to find parameters,
             // this should be slightly faster in native code, and less error prone (if there are any bugs)
             // if there are double brackets, use the looping code to compensate for escaping values
             if (self.indexOf("{{") === -1 && self.indexOf("}}") === -1) {
@@ -826,4 +826,4 @@ http://msdn.microsoft.com/en-us/library/26etazsy
         module.exports = formatUtil;
         this._ = formatUtil;
     }
-} ());	
+} ());

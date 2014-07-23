@@ -66,3 +66,71 @@ function pad(toPad, padWith, totalLength, direction) {
     }
     return isAnArray ? result : result.join(''); // return as the same type as came in.
 }
+function count(lookInside, lookFor, useEscapeCharacters) {
+    if (!lookInside)
+        return 0;
+
+    useEscapeCharacters = useEscapeCharacters === undefined ? true : useEscapeCharacters;
+    var result = 0, i;
+    for (i = 0; i < lookInside.length; i += 1) {
+        if (useEscapeCharacters && lookInside.charAt(i) === "\\") {
+            i += 2;
+        }
+        if (lookInside.charAt(i) &&
+            lookInside.charAt(i) !== "" &&
+            lookFor.indexOf(lookInside.charAt(i)) > -1) {
+            result += 1;
+        }
+    }
+    return result;
+}
+// TODO merge the 'index of' methods into one with an overload
+function indexOf(searchIn, searchFor) {
+    // IE does not support indexOf on regexp matches so we're writing a utlity method to compensate
+    var result = -1, i;
+    if (typeof searchIn.indexOf === "function") {
+        result = searchIn.indexOf(searchFor);
+    } else {
+        for (i = 0; i < searchIn.length; i += 1) {
+            if (searchIn[i] === searchFor) {
+                result = i;
+                break;
+            }
+        }
+    }
+    return result;
+}
+function lastIndexOf(searchIn, searchFor) {
+    // IE does not support lastIndexOf on regexp matches so we're writing a utlity method to compensate
+    var result = -1, i;
+    if (typeof searchIn !== "undefined") {
+        if (typeof searchIn.lastIndexOf === "function") {
+            result = searchIn.lastIndexOf(searchFor);
+        } else {
+            for (i = searchIn.length - 1; i > -1; i -= 1) {
+                if (searchIn[i] === searchFor) {
+                    result = i;
+                    break;
+                }
+            }
+        }
+    }
+    return result;
+}
+function numberToString(value) {
+    var result, exponent, base, valueAsString = value.toString();
+    if (valueAsString.indexOf('e') > -1) {
+        exponent = valueAsString.match(/\d+$/);
+        if (valueAsString.indexOf('e-') > -1) {
+            // handle negative exponents
+            result = value.toFixed(Math.min(exponent));
+        } else {
+            // positive exponents are a bit more complex
+            base = valueAsString.match(/^-?\d+(\.\d+)?/)[0].replace(/\./, ''); // don't bother multiplying, just remove the decimal
+            result = base + new Array(exponent - base.length + 2).join('0');
+        }
+    } else {
+        result = valueAsString;
+    }
+    return result;
+}
