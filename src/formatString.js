@@ -31,7 +31,7 @@ function formatString(format,values){
 
 			// if we're not given a format, we'll do a normal to string on the data
 			if(item.format) {
-				formatValue(item.format,value);
+				value = formatValue(item.format,value);
 			}
 
 			value = pad(value, " ", item.padding, item.padding);

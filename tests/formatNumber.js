@@ -1,4 +1,3 @@
-
 module("number formats");
 test("padding",function(){
 	equal(formatNumber("00000",123.456),"00123");
@@ -102,7 +101,7 @@ test("positive exponents",function(){
 test("format negative",function(){
 	equal(formatNumber("0",-1234),"-1234");
 	equal(formatNumber("#.000",-1234),"-1234.000");
-	equal(formatNumber("#.####",-0.1234),"-0.1234");
+	equal(formatNumber("#.####",-0.1234),"-.1234");
 	equal(formatNumber("#.###",-0.0000005),"");
 	equal(formatNumber("#.###",-0),"");
 });
@@ -115,8 +114,8 @@ test("pass in unexpected value",function(){
 	equal(formatNumber("#.###",false),"false");
 });
 
-module("number shorcuts");
-test("C number shorcut",function(){
+module("number shortcuts");
+test("C number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -126,7 +125,7 @@ test("C number shorcut",function(){
 	equal(formatNumber("c4",myInt1), "-$12,400.0000");
 	equal(formatNumber("c5",myVal), "-$123,456.78100");
 });
-test("D number shorcut",function(){
+test("D number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -137,7 +136,7 @@ test("D number shorcut",function(){
 	equal(formatNumber("d4",myInt1), "-12400");
 
 });
-test("E number shorcut",function(){
+test("E number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -148,7 +147,7 @@ test("E number shorcut",function(){
 	equal(formatNumber("e5",myVal), "-1.23457E+5");
 
 });
-test("F number shorcut",function(){
+test("F number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -158,7 +157,7 @@ test("F number shorcut",function(){
 	equal(formatNumber("f4",myInt1), "-12400.0000");
 	equal(formatNumber("f5",myVal), "-123456.78100");
 });
-test("N number shorcut",function(){
+test("N number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -168,7 +167,7 @@ test("N number shorcut",function(){
 	equal(formatNumber("n4",myInt1), "-12,400.0000");
 	equal(formatNumber("n5",myVal), "-123,456.78100");
 });
-test("R number shorcut",function(){
+test("R number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -179,7 +178,7 @@ test("R number shorcut",function(){
 	equal(formatNumber("r5",myVal), "-123456.781");
 	equal(formatNumber("r",1.623e-21), "1.623e-21");
 });
-test("X number shorcut",function(){
+test("X number shortcut",function(){
 	var myInt1 = -12400;
 	var myInt2 = 546;
 	var myVal = -123456.781;
@@ -189,7 +188,7 @@ test("X number shorcut",function(){
 	equal(formatNumber("x4",myInt1), "-3070");
 	equal(formatNumber("x5",myVal), "NaN");
 });
-test("P number shorcut",function(){
+test("P number shortcut",function(){
 	var mv1 = -0.9234642316;
 	var mv2 = 3.04322899;
 	equal("-92.35 %", formatNumber("p",mv1));

@@ -84,7 +84,21 @@ function count(lookInside, lookFor, useEscapeCharacters) {
     }
     return result;
 }
+
 // TODO merge the 'index of' methods into one with an overload
+function indexOfAny(searchIn,searchFor)
+{
+    if(!isArray(searchFor)){
+        searchFor = Array.prototype.slice.call(arguments,1);
+    }
+    for(var i = 0; i < searchIn.length; i < i++){
+        if(searchFor.indexOf(searchIn[i]) > -1){
+            return i;
+        }
+    }
+    return -1;
+}
+
 function indexOf(searchIn, searchFor) {
     // IE does not support indexOf on regexp matches so we're writing a utlity method to compensate
     var result = -1, i;
@@ -134,3 +148,24 @@ function numberToString(value) {
     }
     return result;
 }
+function checkForEscaped(checkIn,checkFor) {
+    for(var i = checkIn.indexOf(checkFor,0); i > 0; i = checkIn.indexOf(checkFor,i+1)){
+        if(checkIn[i-1] == '\\'){
+            continue;
+        } else {
+            return true;
+        }
+    }
+    return false;
+}
+// rather than adding a polyfill for foreach, use this function instead that will also act on strings
+function forEach(target,callback,thisArg){
+    if(isFunction(target.forEach)){
+        target.forEach(callback);
+    } else {
+        for(var i = 0; i < target.length; i++){
+            callback.call(thisArg || target,target[i],i,target);
+        }
+    }
+}
+

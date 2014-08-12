@@ -1,15 +1,26 @@
+function zeros(length,def){
+    if(!isNumber(length) || isNaN(length)){
+        length = def;
+    } else {
+        length = Math.abs(length);
+    }
+
+    return new Array(length+1).join('0')
+}
+
+
 var numberShorts = {
 	c :  function(format,value,length){
-		return formatNumber("$#.00",value);
+		return formatNumber("$#,#." + zeros(length,2),value);
 	},
 	d : function(format,value,length){
-		return formatNumber(new Array((length||0)+1).join("0"),value);
+		return formatNumber(zeros(length,0),value);
 	},
 	f : function(format,value,length){
-		return formatNumber("0." + new Array((length||2)+1).join("0"),value);
+		return formatNumber("0." + zeros(length,2),value);
 	},
 	n : function(format, value, length) {
-		return formatNumber("#,000." + new Array((length||2)+1).join("0"),value);
+		return formatNumber("#,000." +zeros(length,2),value);
 	},
     e: function (format, value, length) {
         return value.toExponential(isNaN(length) ? 6 : length).toString().toUpperCase();
@@ -72,6 +83,7 @@ function formatNumber(format,value) {
 		firstIndexOfPoundRight = rightFormat ? indexOf(rightFormat, "#") : 0,
 		lastIndexOfZeroLeft = leftFormat ? indexOf(leftFormat, "0") : 0, // right to left
 		firstIndexOfPoundLeft = leftFormat ? lastIndexOf(leftFormat, "#") : 0, // right to left
+        isNegative = value < 0,
 		valueIndex = 0,
 		rightNumber,
 		leftNumber,
@@ -121,7 +133,7 @@ function formatNumber(format,value) {
     }
 
     // round raw value
-    value = new Number(value.toFixed(roundingLength));
+    value = Math.abs(value.toFixed(roundingLength));
 
     // convert value to string
     value = numberToString(value);
@@ -194,6 +206,7 @@ function formatNumber(format,value) {
     // unlike the right side, include all the numbers
     // but only if the left side is not zero
     formatIndex = leftFormat.length - 1; // set the start of the formatting at the furthest right character
+    lastPlaceHolderIndex = indexOfAny(format,"0","#");
     conditions = function (valueIndex, formatIndex, leftFormat) {
         var result = {
             formatComplete: formatIndex <= -1,
@@ -204,6 +217,15 @@ function formatNumber(format,value) {
         };
         return result;
     };
+
+    function addSeperator(){
+        // add seperator
+        if (useSeperator &&
+            (leftNumber.length - valueIndex) > 2 &&
+            (leftNumber.length - valueIndex) % 3 == 1) {
+            lResult.unshift(",");
+        }
+    }
 
     for (valueIndex = leftNumber.length - 1; valueIndex > -1; valueIndex -= 1) {
 
@@ -229,15 +251,22 @@ function formatNumber(format,value) {
 
         // add the value
         if (leftFormat.replace(/#/g, '').length > 0 || parseInt(value) > 0 || parseFloat(value) < 0) {
-            lResult.unshift(leftNumber.charAt(valueIndex));
+            // if the formatIndex is of the last placeholder, add all remaining digits
+            if(lastPlaceHolderIndex === formatIndex)
+            {
+                do{
+                    addSeperator();
+                    lResult.unshift(leftNumber.charAt(valueIndex));
+                    valueIndex--;
+                } while (valueIndex > -1);
+            } else {
+                addSeperator();
+                lResult.unshift(leftNumber.charAt(valueIndex));
+            }
             formatIndex -= 1;
         }
-
-        // add seperator
-        if (useSeperator && valueIndex > 0 && (leftNumber.length - valueIndex) % 3 == 0) {
-            lResult.unshift(",");
-        }
     }
+
 
     // add literals one by one to make sure they are not a digit place holder
     if (formatIndex > -1) {
@@ -253,6 +282,12 @@ function formatNumber(format,value) {
     lPaddingIndex = leftFormat.indexOf("0");
     lPaddingIndex = lPaddingIndex === -1 ? 0 : leftFormat.length - lPaddingIndex;
     lResult = pad(lResult, "0", lPaddingIndex, -1);
+
+
+    if(isNegative && (lResult.length || rResult.length)) {
+        lResult.unshift("-");
+    }
+
     return lResult.join('') + rResult.join('');
 
 }

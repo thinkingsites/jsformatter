@@ -4,4 +4,5 @@ function formatValue(format,value) {
     } else if(isNumber(value)) {
         value = formatNumber(format,value);
     }
+    return value;
 };

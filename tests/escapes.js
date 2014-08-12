@@ -1,10 +1,10 @@
 
 module("escapes");
 test("escape brackets",function(){
-	equal(formatString("{{0}} {0}",123456),"{{0}} 123456");
-	equal(formatString("{{0}} {0:###{{###}",123456),"{{0}} 123{{456");
-	equal(formatString("{{0}} {0:###}}###}",123456),"{{0}} 123}}456");
-	equal(formatString("{{0}} {0:###{{0}}###}",123456),"{{0}} 12{{3}}456");
+	equal(formatString("{{0}} {0}",123456),"{0} 123456");
+	equal(formatString("{{0}} {0:###{{###}",123456),"{0} 123{456");
+	equal(formatString("{{0}} {0:###}}###}",123456),"{0} 123}456");
+	equal(formatString("{{0}} {0:###{{0}}###}",123456),"{0} 12{3}456");
 });
 test("escape slashes in number",function(){
 	equal(formatString("{0:0.##\\###}",0.12345),"0.12#35");
