@@ -5,7 +5,7 @@ function zeros(length,def){
         length = Math.abs(length);
     }
 
-    return new Array(length+1).join('0')
+    return new Array(length+1).join('0');
 }
 
 
@@ -57,7 +57,7 @@ var numberShorts = {
 	    }
 	    return result;
 	}
-}
+};
 
 function formatNumber(format,value) {
 
@@ -163,7 +163,7 @@ function formatNumber(format,value) {
             } else if ("0#".indexOf(rightFormat.charAt(formatIndex)) > -1) {
                 // handle number placeholder
                 if (typeof rightNumber === "undefined") {
-                    if (rightFormat.charAt(formatIndex) == 0) {
+                    if (rightFormat.charAt(formatIndex) === 0) {
                         rResult.push(0);
                     } else {
                         break;

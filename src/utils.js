@@ -62,7 +62,7 @@ function pad(toPad, padWith, totalLength, direction) {
     totalLength = Math.abs(totalLength);
     if (currentLength < totalLength) {
         // assume padWith is a single character
-        result[direction > 0 ? "push" : "unshift"](new Array(totalLength - currentLength + 1).join(padWith))
+        result[direction > 0 ? "push" : "unshift"](new Array(totalLength - currentLength + 1).join(padWith));
     }
     return isAnArray ? result : result.join(''); // return as the same type as came in.
 }

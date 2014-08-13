@@ -60,4 +60,4 @@ function getChunks(format) {
         appendChunk(result,item);
     }
     return result;
-};
+}

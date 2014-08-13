@@ -5,4 +5,4 @@ function formatValue(format,value) {
         value = formatNumber(format,value);
     }
     return value;
-};
+}
