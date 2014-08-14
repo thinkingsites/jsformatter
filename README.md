@@ -65,18 +65,24 @@ There are several small differences between the .Net formatter and the jsformatt
 
 * backslashes require **double** backslashes to escape characters
 
+```
 	format("{0:#\\##}",12); // returns "1#2"
+```
 
 * an object can be passed into the argument, the formatter will format use the object's keys
 
+```
 	format("mary {verb} a {adjective} lamb", { verb : "had", adjective : "little "}); // returns "mary had a little lamb"
+```
 
 * the formatter will resolve all functions into their values
 
+```
 	format("mary {verb} a {adjective} lamb", {
 		verb : function(){ return "had" },
 		adjective : function(){ return "little" }
 	}); // returns "mary had a little lamb"
+```
 
 References
 ==========
