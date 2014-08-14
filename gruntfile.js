@@ -31,6 +31,8 @@ module.exports = function(grunt) {
         files : [
           {expand: true, flatten: true, filter: 'isFile', src: ['build/jsformatter.<%= pkg.version %>.js'], dest: 'releases/<%= pkg.version %>/' },
           {expand: true, flatten: true, filter: 'isFile', src: ['build/jsformatter.<%= pkg.version %>.min.js'], dest: 'releases/<%= pkg.version %>/' },
+          {expand: true, flatten: true, filter: 'isFile', src: ['build/jsformatter.<%= pkg.version %>.js'], dest: './' },
+          {expand: true, flatten: true, filter: 'isFile', src: ['build/jsformatter.<%= pkg.version %>.min.js'], dest: './' },
           {expand: true, flatten: true, filter: 'isFile', src: ['gpl-3.0.txt'], dest: 'releases/<%= pkg.version %>/' },
           {expand: true, flatten: true, filter: 'isFile', src: ['readme.md'], dest: 'releases/<%= pkg.version %>/' },
         ]
