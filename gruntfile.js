@@ -35,14 +35,21 @@ module.exports = function(grunt) {
           {expand: true, flatten: true, filter: 'isFile', src: ['readme.md'], dest: 'releases/<%= pkg.version %>/' },
         ]
       }
+    },
+    mocha : {
+      test : {
+        src : ["tests/**/*.js"]
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-mocha');
 
   // Default task(s).
+  grunt.registerTask('mocha')
   grunt.registerTask('default', ['concat:merge','uglify']);
   grunt.registerTask('release', ['concat:merge','uglify','copy']);
 };
