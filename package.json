@@ -1,6 +1,6 @@
 {
   "name": "jsformatter",
-  "version" : "0.12.7",
+  "version" : "2.0.0",
   "url" : "https://github.com/thinkingsites/jsformatter",
   "license" : "GPL-3.0",
   "repository" :
@@ -16,7 +16,9 @@
     "grunt-contrib-concat": "~0.5.0",
     "grunt-contrib-uglify": "~0.5.0",
     "grunt-contrib-copy": "~0.4.0",
-    "grunt-mocha": "~0.4.13",
+    "grunt-contrib-copy": "~0.4.0",
+    "grunt-eslint": "~17.2.0",
+    "grunt-mocha-cli": "~0.4.1",
     "lodash": "~3.10.1",
     "mocha": "~2.3.3"
   }
